@@ -10,16 +10,16 @@ const pageFlip = new St.PageFlip(bookContainer, {
 
 /* Sayfalar */
 pageFlip.loadFromImages([
-  "pages/1.png","pages/2.png","pages/3.png","pages/4.png","pages/5.png",
-  "pages/6.png","pages/7.png","pages/8.png","pages/9.png","pages/10.png",
-  "pages/11.png","pages/12.png","pages/13.png","pages/14.png","pages/15.png",
-  "pages/16.png","pages/17.png","pages/18.png","pages/19.png","pages/20.png",
-  "pages/21.png","pages/22.png","pages/23.png","pages/24.png","pages/25.png",
-  "pages/26.png","pages/27.png","pages/28.png","pages/29.png","pages/30.png",
-  "pages/31.png","pages/32.png","pages/33.png","pages/34.png","pages/35.png",
-  "pages/36.png","pages/37.png","pages/38.png","pages/39.png","pages/40.png",
-  "pages/41.png","pages/42.png","pages/43.png","pages/44.png","pages/45.png",
-  "pages/46.png"
+  "pages/1.jpg","pages/2.jpg","pages/3.jpg","pages/4.jpg","pages/5.jpg",
+  "pages/6.jpg","pages/7.jpg","pages/8.jpg","pages/9.jpg","pages/10.jpg",
+  "pages/11.jpg","pages/12.jpg","pages/13.jpg","pages/14.jpg","pages/15.jpg",
+  "pages/16.jpg","pages/17.jpg","pages/18.jpg","pages/19.jpg","pages/20.jpg",
+  "pages/21.jpg","pages/22.jpg","pages/23.jpg","pages/24.jpg","pages/25.jpg",
+  "pages/26.jpg","pages/27.jpg","pages/28.jpg","pages/29.jpg","pages/30.jpg",
+  "pages/31.jpg","pages/32.jpg","pages/33.jpg","pages/34.jpg","pages/35.jpg",
+  "pages/36.jpg","pages/37.jpg","pages/38.jpg","pages/39.jpg","pages/40.jpg",
+  "pages/41.jpg","pages/42.jpg","pages/43.jpg","pages/44.jpg","pages/45.jpg",
+  "pages/46.jpg"
 ]);
 
 /* Videolu sayfalar */
