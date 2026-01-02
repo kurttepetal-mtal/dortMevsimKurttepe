@@ -1,6 +1,3 @@
-/* ================================
-   AYARLAR (KİLİTLİ)
-================================ */
 const TOTAL_PAGES = 46;
 
 const videoPages = {
@@ -19,17 +16,14 @@ const nextBtn = document.getElementById("nextBtn");
 const indicator = document.getElementById("pageIndicator");
 const hint = document.getElementById("hint");
 
-/* 🔊 SAYFA ÇEVİRME SESİ (YENİ YOL) */
+/* 🔊 SES */
 const flipSound = new Audio("audio/page-turn.mp3");
-flipSound.volume = 0.4;
+flipSound.volume = 0.35;
 
-/* Durum */
-let spread = 1;        // 1 = kapak, 2 = 2–3, 4 = 4–5 ...
+let spread = 1;
 let flipping = false;
 
-/* ================================
-   JPG ADI UYUMLULUĞU
-================================ */
+/* JPG uyumluluk */
 function setSmartImg(img, pageNo) {
   const padded = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
   const plain  = `pages/${pageNo}.jpg`;
@@ -40,13 +34,10 @@ function setSmartImg(img, pageNo) {
   };
 }
 
-/* ================================
-   SAYFA OLUŞTUR (KİLİTLİ)
-================================ */
-function createPage(pageNo, blank = false) {
+/* Sayfa */
+function createPage(pageNo, blank=false) {
   const page = document.createElement("div");
   page.className = "page";
-  page.dataset.pageNo = blank ? "" : String(pageNo);
 
   if (blank) return page;
 
@@ -62,16 +53,13 @@ function createPage(pageNo, blank = false) {
     v.loop = true;
     v.autoplay = true;
     v.controls = true;
-    v.preload = "auto";
     page.appendChild(v);
   }
 
   return page;
 }
 
-/* ================================
-   FLIP KATMANI (3D)
-================================ */
+/* Flip katmanı */
 function buildFlipLayer(frontNo, backNo) {
   const layer = document.createElement("div");
   layer.className = "flip-layer";
@@ -89,41 +77,33 @@ function buildFlipLayer(frontNo, backNo) {
   return layer;
 }
 
-/* ================================
-   RENDER (KİLİTLİ)
-================================ */
+/* Render */
 function render() {
   book.innerHTML = "";
 
   if (spread === 1) {
-    // Kapak: sol boş, sağ 1
     book.appendChild(createPage(0, true));
     book.appendChild(createPage(1));
     indicator.textContent = `1 / ${TOTAL_PAGES}`;
   } else {
     book.appendChild(createPage(spread));
     book.appendChild(createPage(spread + 1));
-    indicator.textContent = `${spread}–${spread + 1} / ${TOTAL_PAGES}`;
+    indicator.textContent = `${spread}–${spread+1} / ${TOTAL_PAGES}`;
   }
 }
 
-/* ================================
-   SES ÇAL (GÜVENLİ)
-================================ */
+/* Ses */
 function playFlipSound() {
   try {
     flipSound.currentTime = 0;
-    flipSound.play().catch(() => {});
+    flipSound.play().catch(()=>{});
   } catch {}
 }
 
-/* ================================
-   FLIP NEXT (3D + SES)
-================================ */
+/* KENARDAN İLERİ ÇEVİR */
 function flipNext() {
   if (flipping || spread >= TOTAL_PAGES) return;
   flipping = true;
-
   playFlipSound();
 
   const isCover = (spread === 1);
@@ -134,14 +114,20 @@ function flipNext() {
   book.appendChild(layer);
 
   let start = null;
-  const duration = 550;
+  const duration = 650; // 🔴 biraz daha yavaş
 
   function step(ts) {
     if (!start) start = ts;
-    const p = Math.min(1, (ts - start) / duration);
-    layer.style.transform = `rotateY(${-180 * p}deg)`;
+    const t = Math.min(1, (ts - start) / duration);
 
-    if (p < 1) {
+    /* 🔴 Hafif eğrilik hissi */
+    const rotate = -180 * t;
+    const bend   = Math.sin(t * Math.PI) * 8;
+
+    layer.style.transform =
+      `rotateY(${rotate}deg) skewY(${bend}deg)`;
+
+    if (t < 1) {
       requestAnimationFrame(step);
     } else {
       spread = isCover ? 2 : spread + 2;
@@ -149,17 +135,13 @@ function flipNext() {
       render();
     }
   }
-
   requestAnimationFrame(step);
 }
 
-/* ================================
-   FLIP PREV (3D + SES)
-================================ */
+/* GERİ ÇEVİR */
 function flipPrev() {
   if (flipping || spread <= 1) return;
   flipping = true;
-
   playFlipSound();
 
   const target = (spread === 2) ? 1 : spread - 2;
@@ -171,14 +153,19 @@ function flipPrev() {
   layer.style.transform = "rotateY(-180deg)";
 
   let start = null;
-  const duration = 550;
+  const duration = 650;
 
   function step(ts) {
     if (!start) start = ts;
-    const p = Math.min(1, (ts - start) / duration);
-    layer.style.transform = `rotateY(${-180 + 180 * p}deg)`;
+    const t = Math.min(1, (ts - start) / duration);
 
-    if (p < 1) {
+    const rotate = -180 + 180 * t;
+    const bend   = Math.sin((1 - t) * Math.PI) * 8;
+
+    layer.style.transform =
+      `rotateY(${rotate}deg) skewY(${bend}deg)`;
+
+    if (t < 1) {
       requestAnimationFrame(step);
     } else {
       spread = target;
@@ -186,23 +173,16 @@ function flipPrev() {
       render();
     }
   }
-
   requestAnimationFrame(step);
 }
 
-/* ================================
-   BUTONLAR
-================================ */
+/* Butonlar */
 nextBtn.onclick = flipNext;
 prevBtn.onclick = flipPrev;
 
-/* ================================
-   AUTOPLAY UNLOCK (SES + VİDEO)
-================================ */
+/* Autoplay unlock */
 document.addEventListener("click", () => {
   hint.style.display = "none";
-
-  // Ses hazır olsun
   try {
     flipSound.play().then(() => {
       flipSound.pause();
@@ -210,11 +190,7 @@ document.addEventListener("click", () => {
     }).catch(()=>{});
   } catch {}
 
-  // Videolar
   document.querySelectorAll("video").forEach(v => v.play().catch(()=>{}));
 }, { once:true });
 
-/* ================================
-   BAŞLAT
-================================ */
 render();
