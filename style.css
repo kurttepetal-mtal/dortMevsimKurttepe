@@ -16,18 +16,19 @@ html, body {
 }
 
 /* =====================================================
-   ANA KONTEYNER
+   ANA SAHNE / ORTALAMA
 ===================================================== */
-#app {
+#app,
+.stage {
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding-bottom: 80px; /* alt kontrol alanı için */
+  padding-bottom: 90px; /* alt kontrol barı için */
 }
 
 /* =====================================================
-   KİTAP ALANI (BEYAZ DİKDÖRTGEN)
+   KİTAP (BEYAZ DİKDÖRTGEN)
 ===================================================== */
 #book {
   position: relative;
@@ -37,6 +38,8 @@ html, body {
   box-shadow: 0 15px 40px rgba(0,0,0,0.25);
   display: flex;
   overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Kapak modu: ilk sayfa sağda */
@@ -45,7 +48,7 @@ html, body {
 }
 
 /* =====================================================
-   SAYFA ORTAK
+   SAYFALAR
 ===================================================== */
 .page {
   position: relative;
@@ -55,7 +58,7 @@ html, body {
   background: #fff;
 }
 
-/* Sol / Sağ */
+/* Sol / Sağ sayfa ayırımı */
 .page.left {
   border-right: 1px solid #ddd;
 }
@@ -70,14 +73,15 @@ html, body {
 .page img.bg {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* YAZILAR ASLA KESİLMEZ */
+  object-fit: contain; /* KENAR YAZILAR KESİLMEZ */
   display: block;
 }
 
 /* =====================================================
    VIDEO OVERLAY
 ===================================================== */
-.page.video video {
+.page.video video,
+.page video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -87,7 +91,7 @@ html, body {
 }
 
 /* =====================================================
-   FLIP (3D SAYFA ÇEVİRME)
+   FLIP / SAYFA ÇEVİRME KATMANI
 ===================================================== */
 .flip-layer {
   position: absolute;
@@ -119,19 +123,20 @@ html, body {
 }
 
 /* =====================================================
-   ALT KONTROLLER
+   ALT KONTROLLER (İLERİ / GERİ + SAYFA NO)
 ===================================================== */
 .controls {
   position: fixed;
-  bottom: 12px;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 14px;
   z-index: 999;
+
   background: rgba(255,255,255,0.95);
-  padding: 8px 14px;
+  padding: 8px 16px;
   border-radius: 30px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.25);
 }
@@ -151,19 +156,21 @@ html, body {
   cursor: not-allowed;
 }
 
-#pageLabel {
+#pageLabel,
+#pageIndicator {
   font-weight: bold;
-  min-width: 60px;
+  min-width: 70px;
   text-align: center;
 }
 
 /* =====================================================
-   MOBİL UYUMLULUK (EN KRİTİK KISIM)
+   MOBİL UYUMLULUK (ÇOK ÖNEMLİ)
 ===================================================== */
 @media (max-width: 768px) {
 
-  #app {
-    padding-bottom: 100px;
+  #app,
+  .stage {
+    padding-bottom: 110px;
   }
 
   #book {
@@ -186,7 +193,7 @@ html, body {
   }
 
   .page.right {
-    display: none; /* MOBİLDE SADECE TEK SAYFA */
+    display: none;
   }
 
   .page img.bg,
@@ -196,15 +203,15 @@ html, body {
     object-fit: contain; /* YAZILAR TAM GÖRÜNÜR */
   }
 
-  /* Flip animasyonu mobilde kapalı (stabilite için) */
+  /* Flip animasyonu mobilde kapalı (stabilite) */
   .flip-layer {
     display: none;
   }
 
   /* Kontroller mobilde daha büyük */
   .controls {
-    bottom: 8px;
-    padding: 10px 16px;
+    bottom: 10px;
+    padding: 10px 18px;
   }
 
   .controls button {
