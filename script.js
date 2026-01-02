@@ -5,7 +5,6 @@ const TOTAL_PAGES = 47;
 
 /* Video olan sayfalar */
 const videoPages = {
-  1:  "videos/v01.mp4",
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
