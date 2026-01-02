@@ -1,51 +1,39 @@
-/* =====================================================
-   GENEL SIFIRLAMA
-===================================================== */
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* =====================================================
-   SAYFA ORTALAMA
-===================================================== */
-html, body {
-  width: 100%;
-  height: 100%;
 }
 
 body {
-  background: #e6e6e6;
-  font-family: Arial, Helvetica, sans-serif;
-
-  /* 🔴 KRİTİK: TAM ORTALAMA */
+  margin: 0;
+  background: #eee;
+  font-family: Arial, sans-serif;
   display: flex;
-  flex-direction: column;
-  align-items: center;   /* yatay */
-  justify-content: center; /* dikey */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* =====================================================
-   KİTAP KAPSAYICI
-===================================================== */
+/* Kitap alanı */
+#book-wrapper {
+  position: relative;
+  width: 920px;
+  height: 650px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Kitap */
 #book {
+  position: relative;
   width: 900px;
   height: 650px;
   background: #fff;
-
   display: flex;
-  flex-direction: row;
-
-  box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+  box-shadow: 0 10px 40px rgba(0,0,0,.3);
   overflow: hidden;
-
-  margin: 0 auto 20px auto; /* 🔴 ORTALA */
 }
 
-/* =====================================================
-   SAYFALAR
-===================================================== */
+/* Sayfa */
 .page {
   width: 50%;
   height: 100%;
@@ -61,52 +49,47 @@ body {
   border-left: 1px solid #ddd;
 }
 
-/* =====================================================
-   JPG ARKAPLAN
-===================================================== */
-.bg {
+/* Kapak özel */
+.cover-mode .page.left {
+  display: none;
+}
+.cover-mode .page.right {
+  width: 100%;
+}
+
+/* JPG */
+.page img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* =====================================================
-   VİDEO
-===================================================== */
-.page.video video {
+/* Video */
+.page video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 2;
 }
 
-/* =====================================================
-   KAPAK MODU (1. SAYFA YARIM)
-===================================================== */
-#book.cover-mode .page.right {
-  display: none;
-}
-
-#book.cover-mode .page.left {
-  width: 50%;
-}
-
-/* =====================================================
-   ALT KONTROLLER (ORTA + SABİT)
-===================================================== */
-#controls {
+/* Kontroller */
+.controls {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: center;
-  gap: 20px;
-
-  width: 100%;
+  justify-content: space-between;
+  padding: 0 40px;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-#controls button {
-  padding: 10px 24px;
-  font-size: 14px;
+.controls button {
+  pointer-events: all;
+  font-size: 18px;
+  padding: 10px 18px;
   border: none;
   border-radius: 6px;
   background: #222;
@@ -114,30 +97,17 @@ body {
   cursor: pointer;
 }
 
-#controls button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.controls button:disabled {
+  opacity: .4;
+  cursor: default;
 }
 
-/* =====================================================
-   MOBİL DÜZEN
-===================================================== */
-@media (max-width: 900px) {
-
-  #book {
-    width: 95vw;
-    height: 70vh;
-  }
-
-  .page {
-    width: 100%;
-  }
-
-  .page.right {
-    display: none;
-  }
-
-  #book.cover-mode .page.left {
-    width: 100%;
-  }
+/* Alt bilgi */
+#hint {
+  position: fixed;
+  bottom: 15px;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #444;
 }
