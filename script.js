@@ -1,12 +1,13 @@
-/* =====================================================
-   TEMEL AYARLAR
-===================================================== */
+/* =========================================================
+   AYARLAR
+========================================================= */
+
 const TOTAL_PAGES = 46;
 
-/* Video olan sayfalar */
-const videoPages = {
+// Video olan sayfalar (DOSYA ADLARINA GÖRE)
+const videoMap = {
   1:  "videos/v01.mp4",
-  5:  "videos/v05.mp4",
+  5:  "videos/v05.mp4",   // ⭐ KESİN autoplay
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
@@ -14,118 +15,206 @@ const videoPages = {
   41: "videos/v41.mp4"
 };
 
-const book = document.getElementById("book");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
+const bookEl   = document.getElementById("book");
+const prevBtn  = document.getElementById("prevBtn");
+const nextBtn  = document.getElementById("nextBtn");
+const pageLabel = document.getElementById("pageLabel");
+const turnSound = document.getElementById("turnSound");
 
-/* Kapakta 1, sonra 2-3, 4-5... */
-let currentPage = 1;
+/* =========================================================
+   KULLANICI ETKİLEŞİMİ (SES / VIDEO KİLİDİ AÇMA)
+========================================================= */
 
-/* =====================================================
+let unlocked = false;
+
+function unlockOnce() {
+  if (unlocked) return;
+  unlocked = true;
+
+  if (turnSound) {
+    turnSound.volume = 0.3;
+    turnSound.play().then(() => {
+      turnSound.pause();
+      turnSound.currentTime = 0;
+    }).catch(() => {});
+  }
+}
+
+document.addEventListener("click", unlockOnce, { once: true });
+document.addEventListener("touchstart", unlockOnce, { once: true });
+
+/* =========================================================
    SAYFA OLUŞTURMA
-===================================================== */
-function createPage(pageNo, side) {
+========================================================= */
+
+function makePage(side, pageNo) {
   const page = document.createElement("div");
   page.className = `page ${side}`;
+  page.dataset.pageNo = pageNo;
 
-  /* Arka plan JPG */
+  // JPG arka plan
   const img = document.createElement("img");
-  img.src = `pages/${pageNo}.jpg`;
-  img.className = "page-bg";
+  img.className = "bg";
+  img.src = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
+  img.alt = `Sayfa ${pageNo}`;
   page.appendChild(img);
 
-  /* Video varsa */
-  if (videoPages[pageNo]) {
+  // Video overlay
+  if (videoMap[pageNo]) {
+    page.classList.add("video");
+
     const video = document.createElement("video");
-    video.src = videoPages[pageNo];
-    video.className = "page-video";
-    video.muted = true;
+    video.src = videoMap[pageNo];
+
+    video.muted = true;          // autoplay şartı
     video.playsInline = true;
-    video.autoplay = true;
     video.loop = true;
-    video.preload = "metadata";
-    video.controls = true;
+    video.preload = "auto";
+    video.controls = false;
+
+    video.style.position = "absolute";
+    video.style.inset = "0";
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.objectFit = "cover";
+
+    // ⭐ ZORUNLU AUTOPLAY İŞARETİ
+    video.dataset.forceAutoplay = "true";
 
     page.appendChild(video);
-
-    // görünür olunca oynat
-    setTimeout(() => {
-      video.play().catch(() => {});
-    }, 200);
   }
 
   return page;
 }
 
-/* =====================================================
-   RENDER
-===================================================== */
-function render() {
-  book.innerHTML = "";
+/* =========================================================
+   RENDER MANTIĞI
+========================================================= */
 
-  /* Kapak */
-  if (currentPage === 1) {
-    book.classList.add("cover");
-    book.appendChild(createPage(1, "right"));
-  } 
-  /* Normal çift sayfa */
-  else {
-    book.classList.remove("cover");
+let spreadStart = 1;
+let leftPageEl = null;
+let rightPageEl = null;
 
-    const left = currentPage;
-    const right = currentPage + 1;
-
-    book.appendChild(createPage(left, "left"));
-    if (right <= TOTAL_PAGES) {
-      book.appendChild(createPage(right, "right"));
-    }
-  }
-
-  prevBtn.disabled = currentPage === 1;
-  nextBtn.disabled = currentPage >= TOTAL_PAGES;
+function stopVideos() {
+  document.querySelectorAll("video").forEach(v => {
+    try { v.pause(); } catch {}
+  });
 }
 
-/* =====================================================
-   NAVİGASYON
-===================================================== */
-nextBtn.addEventListener("click", () => {
-  if (currentPage === 1) {
-    currentPage = 2;
-  } else if (currentPage + 2 <= TOTAL_PAGES) {
-    currentPage += 2;
+function forcePlayVisibleVideos() {
+  document.querySelectorAll(".page video").forEach(v => {
+    const pageNo = v.closest(".page")?.dataset.pageNo;
+    if (!pageNo) return;
+
+    // ⭐ 5. SAYFA HER ZAMAN OYNASIN
+    if (Number(pageNo) === 5) {
+      v.currentTime = 0;
+      v.muted = true;
+      v.play().catch(() => {});
+    } else {
+      v.play().catch(() => {});
+    }
+  });
+}
+
+function render() {
+  stopVideos();
+  bookEl.innerHTML = "";
+
+  const isCover = (spreadStart === 1);
+  bookEl.classList.toggle("cover-mode", isCover);
+
+  // Sol sayfa
+  leftPageEl = makePage("left", spreadStart);
+  bookEl.appendChild(leftPageEl);
+
+  // Sağ sayfa (kapakta yok)
+  if (!isCover && spreadStart + 1 <= TOTAL_PAGES) {
+    rightPageEl = makePage("right", spreadStart + 1);
+    bookEl.appendChild(rightPageEl);
+  } else {
+    rightPageEl = null;
   }
-  render();
+
+  pageLabel.textContent = spreadStart;
+
+  prevBtn.disabled = spreadStart === 1;
+  nextBtn.disabled = spreadStart >= TOTAL_PAGES;
+
+  // ⭐ GECİKMELİ ZORLAMA
+  setTimeout(forcePlayVisibleVideos, 300);
+}
+
+/* =========================================================
+   SAYFA ÇEVİRME
+========================================================= */
+
+let flipping = false;
+
+function flipNext() {
+  if (flipping || spreadStart >= TOTAL_PAGES) return;
+  flipping = true;
+
+  if (turnSound && unlocked) {
+    turnSound.currentTime = 0;
+    turnSound.play().catch(() => {});
+  }
+
+  spreadStart = (spreadStart === 1) ? 2 : spreadStart + 2;
+
+  setTimeout(() => {
+    render();
+    flipping = false;
+  }, 450);
+}
+
+function flipPrev() {
+  if (flipping || spreadStart <= 1) return;
+  flipping = true;
+
+  if (turnSound && unlocked) {
+    turnSound.currentTime = 0;
+    turnSound.play().catch(() => {});
+  }
+
+  spreadStart = (spreadStart === 2) ? 1 : spreadStart - 2;
+
+  setTimeout(() => {
+    render();
+    flipping = false;
+  }, 450);
+}
+
+/* =========================================================
+   BUTON + KLAVYE + SWIPE
+========================================================= */
+
+prevBtn.addEventListener("click", flipPrev);
+nextBtn.addEventListener("click", flipNext);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") flipNext();
+  if (e.key === "ArrowLeft") flipPrev();
 });
 
-prevBtn.addEventListener("click", () => {
-  if (currentPage === 2) {
-    currentPage = 1;
-  } else if (currentPage - 2 >= 1) {
-    currentPage -= 2;
-  }
-  render();
-});
-
-/* =====================================================
-   SWIPE (MOBİL)
-===================================================== */
+// Mobil swipe
 let startX = null;
 
-book.addEventListener("touchstart", e => {
+bookEl.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
 }, { passive: true });
 
-book.addEventListener("touchend", e => {
-  if (!startX) return;
+bookEl.addEventListener("touchend", e => {
+  if (startX === null) return;
   const dx = e.changedTouches[0].clientX - startX;
   startX = null;
 
   if (Math.abs(dx) < 40) return;
-  if (dx < 0) nextBtn.click();
-  else prevBtn.click();
+  dx < 0 ? flipNext() : flipPrev();
 }, { passive: true });
 
-/* =====================================================
+/* =========================================================
    BAŞLAT
-===================================================== */
+========================================================= */
+
 render();
