@@ -1,10 +1,6 @@
 const TOTAL_PAGES = 46;
 
-/*
-  Videolar: sayfaNo -> video yolu
-  Dikkat: klasör adı "videos"
-*/
-const videoMap = {
+const videoPages = {
   1:  "videos/v01.mp4",
   5:  "videos/v05.mp4",
   17: "videos/v17.mp4",
@@ -17,143 +13,75 @@ const videoMap = {
 const book = document.getElementById("book");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
+const indicator = document.getElementById("pageIndicator");
 const hint = document.getElementById("hint");
 
-let spreadStart = 1; // kapak
+let current = 1;
 
-/* -------------------------------------------------------
-   SAYFA GÖRSELİ: önce "1.jpg" dener, yoksa "01.jpg" dener
-   Çünkü sizde bazıları 05.jpg gibi, bazıları 1.jpg gibi.
--------------------------------------------------------- */
-function setSmartImageSrc(imgEl, pageNo) {
-  const plain = `pages/${pageNo}.jpg`;
-  const padded = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
-
-  imgEl.onerror = () => {
-    if (imgEl.dataset.tried === "plain") {
-      imgEl.onerror = null;
-      imgEl.src = padded;
-      imgEl.dataset.tried = "padded";
-    }
-  };
-
-  imgEl.dataset.tried = "plain";
-  imgEl.src = plain;
-}
-
-/* -------------------------------------------------------
-   SAYFA OLUŞTURMA
--------------------------------------------------------- */
-function createPage(side, pageNo, isBlank = false) {
+/* Sayfa oluştur */
+function createPage(pageNo, blank = false) {
   const page = document.createElement("div");
-  page.className = `page ${side}`;
-  page.dataset.pageNo = String(pageNo);
+  page.className = "page";
 
-  if (isBlank) {
-    // boş sayfa (kapakta sol taraf)
-    return page;
-  }
+  if (blank) return page;
 
-  // Arka plan JPG
   const img = document.createElement("img");
-  img.className = "bg";
-  img.alt = `Sayfa ${pageNo}`;
-  setSmartImageSrc(img, pageNo);
+  img.src = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
   page.appendChild(img);
 
-  // Video overlay (varsa)
-  if (videoMap[pageNo]) {
-    const video = document.createElement("video");
-    video.className = "vid";
-    video.src = videoMap[pageNo];
+  if (videoPages[pageNo]) {
+    const v = document.createElement("video");
+    v.src = videoPages[pageNo];
+    v.muted = true;
+    v.autoplay = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.controls = true;
+    page.appendChild(v);
 
-    // Autoplay için gerekli
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-    video.autoplay = true;
-    video.preload = "metadata";
-
-    // Kullanıcı isterse kontrol görsün
-    video.controls = true;
-
-    page.appendChild(video);
+    setTimeout(() => v.play().catch(()=>{}), 200);
   }
 
   return page;
 }
 
-/* -------------------------------------------------------
-   VİDEO OYNATMA: görünür sayfalarda tekrar dener
--------------------------------------------------------- */
-function tryPlayVisibleVideos() {
-  const vids = book.querySelectorAll("video.vid");
-  vids.forEach(v => {
-    // bazen first load'da autoplay kaçırıyor; tekrar dene
-    v.play().catch(() => {});
-  });
-}
-
-/* -------------------------------------------------------
-   RENDER
--------------------------------------------------------- */
+/* Render */
 function render() {
   book.innerHTML = "";
 
-  const isCover = (spreadStart === 1);
-  book.classList.toggle("cover-mode", isCover);
-
-  if (isCover) {
-    // KAPAK: sol boş, sağ kapak (1)
-    book.appendChild(createPage("left", 0, true));
-    book.appendChild(createPage("right", 1, false));
+  if (current === 1) {
+    book.appendChild(createPage(0, true));
+    book.appendChild(createPage(1));
+    indicator.textContent = `1 / ${TOTAL_PAGES}`;
   } else {
-    // NORMAL: sol = spreadStart, sağ = spreadStart+1
-    book.appendChild(createPage("left", spreadStart, false));
-    if (spreadStart + 1 <= TOTAL_PAGES) {
-      book.appendChild(createPage("right", spreadStart + 1, false));
+    book.appendChild(createPage(current));
+    if (current + 1 <= TOTAL_PAGES) {
+      book.appendChild(createPage(current + 1));
+      indicator.textContent = `${current}–${current+1} / ${TOTAL_PAGES}`;
     } else {
-      book.appendChild(createPage("right", 0, true));
+      indicator.textContent = `${current} / ${TOTAL_PAGES}`;
     }
   }
 
-  // Buton durumları
-  prevBtn.disabled = (spreadStart === 1);
-  nextBtn.disabled = (spreadStart >= TOTAL_PAGES);
-
-  // Video dene
-  tryPlayVisibleVideos();
+  prevBtn.disabled = current === 1;
+  nextBtn.disabled = current >= TOTAL_PAGES;
 }
 
-/* -------------------------------------------------------
-   NAV
--------------------------------------------------------- */
-nextBtn.addEventListener("click", () => {
-  spreadStart = (spreadStart === 1) ? 2 : (spreadStart + 2);
-  if (spreadStart > TOTAL_PAGES) spreadStart = TOTAL_PAGES;
+/* Navigasyon */
+nextBtn.onclick = () => {
+  current = current === 1 ? 2 : current + 2;
   render();
-});
+};
 
-prevBtn.addEventListener("click", () => {
-  spreadStart = (spreadStart === 2) ? 1 : (spreadStart - 2);
-  if (spreadStart < 1) spreadStart = 1;
+prevBtn.onclick = () => {
+  current = current === 2 ? 1 : current - 2;
   render();
-});
+};
 
-/* -------------------------------------------------------
-   AUTOPLAY UNLOCK (mobil için)
-   İlk tıklamada videoları tekrar play() dener.
--------------------------------------------------------- */
-function unlockOnce() {
+/* Autoplay unlock */
+document.addEventListener("click", () => {
   hint.style.display = "none";
-  tryPlayVisibleVideos();
-  document.removeEventListener("click", unlockOnce);
-  document.removeEventListener("touchstart", unlockOnce);
-}
-document.addEventListener("click", unlockOnce);
-document.addEventListener("touchstart", unlockOnce, { passive: true });
+  document.querySelectorAll("video").forEach(v => v.play().catch(()=>{}));
+}, { once:true });
 
-/* -------------------------------------------------------
-   BAŞLAT
--------------------------------------------------------- */
 render();
