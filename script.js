@@ -5,11 +5,11 @@ const TOTAL_PAGES = 46;
 
 /*
   VIDEO OLAN SAYFALAR
-  🔴 5 NUMARA BİLİNÇLİ OLARAK YOK
+  🔴 5 NUMARA GERİ EKLENDİ
 */
 const videoPages = {
   1:  "videos/v01.mp4",
-  // 5:  YOK → JPG olacak
+  5:  "videos/v05.mp4",   // 🔴 GERİ EKLENDİ
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
@@ -35,7 +35,7 @@ let spread = 1;
 
 /* ================================
    JPG ADI UYUMLULUĞU
-   01.jpg varsa onu, yoksa 1.jpg
+   Önce 01.jpg dener, yoksa 1.jpg
 ================================ */
 function setSmartImg(img, pageNo) {
   const padded = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
@@ -58,22 +58,24 @@ function createPage(pageNo, blank = false) {
 
   if (blank) return page;
 
-  /* JPG */
+  /* JPG ARKA PLAN */
   const img = document.createElement("img");
   img.alt = `Sayfa ${pageNo}`;
   setSmartImg(img, pageNo);
   page.appendChild(img);
 
-  /* VIDEO (SADECE videoPages içinde varsa) */
+  /* VIDEO (VARSA) */
   if (videoPages[pageNo]) {
     const v = document.createElement("video");
     v.src = videoPages[pageNo];
-    v.muted = true;
-    v.playsInline = true;
+
+    v.muted = true;        // autoplay için şart
+    v.playsInline = true; // iOS
     v.loop = true;
     v.autoplay = true;
     v.controls = true;
     v.preload = "auto";
+
     page.appendChild(v);
   }
 
@@ -90,11 +92,13 @@ function visiblePages() {
 }
 
 /* ================================
-   AUTOPLAY UNLOCK (mobil için)
+   AUTOPLAY UNLOCK (mobil)
 ================================ */
 function unlockOnce() {
   if (hint) hint.style.display = "none";
-  book.querySelectorAll("video").forEach(v => v.play().catch(()=>{}));
+  book.querySelectorAll("video").forEach(v => {
+    try { v.play().catch(()=>{}); } catch {}
+  });
   document.removeEventListener("click", unlockOnce);
   document.removeEventListener("touchstart", unlockOnce);
 }
@@ -108,7 +112,7 @@ function render() {
   book.innerHTML = "";
 
   if (spread === 1) {
-    // Kapak: sol boş, sağ 1
+    // KAPAK: sol boş, sağ 1
     book.appendChild(createPage(0, true));
     book.appendChild(createPage(1));
   } else {
@@ -124,7 +128,7 @@ function render() {
     }
   }
 
-  /* SAYFA NUMARASI – EKRANDA GÖRÜNENE GÖRE */
+  /* SAYFA NUMARASI – GÖRÜNENE GÖRE */
   const vis = visiblePages();
   if (vis.length === 1) {
     indicator.textContent = `${vis[0]} / ${TOTAL_PAGES}`;
@@ -137,9 +141,14 @@ function render() {
   prevBtn.disabled = (spread === 1);
   nextBtn.disabled = (spread >= TOTAL_PAGES);
 
-  /* Görünür videoları oynatmayı dene */
+  /* Görünür videoları zorla oynat */
   setTimeout(() => {
-    book.querySelectorAll("video").forEach(v => v.play().catch(()=>{}));
+    book.querySelectorAll("video").forEach(v => {
+      try {
+        v.currentTime = 0;
+        v.play().catch(()=>{});
+      } catch {}
+    });
   }, 300);
 }
 
