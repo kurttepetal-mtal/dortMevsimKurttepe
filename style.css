@@ -1,37 +1,14 @@
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  height: 100vh;
-  background: #eaeaea;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#book {
-  width: 900px;
-  height: 650px;
-  background: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,.3);
-}
-
-/* TÜM SAYFALAR AYNI BOYUT */
 .page {
-  width: 450px;
-  height: 650px;
+  background: white;
 }
 
-/* RESİM SAYFA */
-.page img {
+.media {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
-/* VIDEO SAYFA */
-.page video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+video.media {
+  background: black;
+  pointer-events: auto;
 }
