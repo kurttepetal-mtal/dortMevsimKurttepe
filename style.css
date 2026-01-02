@@ -7,64 +7,50 @@
   padding: 0;
 }
 
+/* =====================================================
+   SAYFA ORTALAMA
+===================================================== */
 html, body {
   width: 100%;
   height: 100%;
+}
+
+body {
   background: #e6e6e6;
   font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
-}
 
-/* =====================================================
-   SAYFA KONTEYNERİ
-===================================================== */
-#app {
-  width: 100%;
-  min-height: 100vh;
+  /* 🔴 KRİTİK: TAM ORTALAMA */
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  align-items: center;   /* yatay */
+  justify-content: center; /* dikey */
 }
 
 /* =====================================================
-   KİTAP (BEYAZ DİKDÖRTGEN)
+   KİTAP KAPSAYICI
 ===================================================== */
 #book {
-  position: relative;
   width: 900px;
   height: 650px;
-  background: #ffffff;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  background: #fff;
+
   display: flex;
+  flex-direction: row;
+
+  box-shadow: 0 15px 40px rgba(0,0,0,0.35);
   overflow: hidden;
-  border-radius: 4px;
+
+  margin: 0 auto 20px auto; /* 🔴 ORTALA */
 }
 
 /* =====================================================
-   KAPAK MODU
-   - Sadece sağ sayfa görünür
-===================================================== */
-#book.cover {
-  justify-content: flex-end;
-}
-
-#book.cover .page.left {
-  display: none;
-}
-
-#book.cover .page.right {
-  width: 50%;
-}
-
-/* =====================================================
-   NORMAL MOD (ÇİFT SAYFA)
+   SAYFALAR
 ===================================================== */
 .page {
-  position: relative;
   width: 50%;
   height: 100%;
+  position: relative;
   overflow: hidden;
-  background: #fff;
 }
 
 .page.left {
@@ -76,84 +62,82 @@ html, body {
 }
 
 /* =====================================================
-   SAYFA ARKA PLAN (JPG)
+   JPG ARKAPLAN
 ===================================================== */
-.page-bg {
+.bg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 /* =====================================================
-   VIDEO (JPG ÜSTÜNDE)
+   VİDEO
 ===================================================== */
-.page-video {
+.page.video video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: transparent;
+  z-index: 2;
 }
 
 /* =====================================================
-   VİDEO KONTROLLERİ (SADE)
+   KAPAK MODU (1. SAYFA YARIM)
 ===================================================== */
-.page-video::-webkit-media-controls-panel {
-  background: rgba(0,0,0,0.4);
+#book.cover-mode .page.right {
+  display: none;
 }
 
-.page-video::-webkit-media-controls-play-button,
-.page-video::-webkit-media-controls-volume-slider {
-  filter: brightness(1.2);
+#book.cover-mode .page.left {
+  width: 50%;
 }
 
 /* =====================================================
-   NAVİGASYON BUTONLARI
+   ALT KONTROLLER (ORTA + SABİT)
 ===================================================== */
 #controls {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
+  justify-content: center;
   gap: 20px;
-  z-index: 10;
+
+  width: 100%;
 }
 
 #controls button {
-  padding: 10px 18px;
+  padding: 10px 24px;
   font-size: 14px;
+  border: none;
+  border-radius: 6px;
   background: #222;
   color: #fff;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
 }
 
 #controls button:disabled {
-  background: #999;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 /* =====================================================
-   MOBİL UYUMLULUK
+   MOBİL DÜZEN
 ===================================================== */
-@media (max-width: 960px) {
+@media (max-width: 900px) {
+
   #book {
-    width: 95%;
+    width: 95vw;
     height: 70vh;
   }
-}
 
-@media (max-width: 600px) {
-  #book {
-    height: 65vh;
+  .page {
+    width: 100%;
   }
 
-  #controls button {
-    padding: 8px 14px;
-    font-size: 13px;
+  .page.right {
+    display: none;
+  }
+
+  #book.cover-mode .page.left {
+    width: 100%;
   }
 }
