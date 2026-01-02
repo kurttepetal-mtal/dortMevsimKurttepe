@@ -23,7 +23,7 @@ flipSound.volume = 0.35;
 let spread = 1;
 let flipping = false;
 
-/* JPG uyumluluk */
+/* JPG uyumu */
 function setSmartImg(img, pageNo) {
   const padded = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
   const plain  = `pages/${pageNo}.jpg`;
@@ -59,7 +59,7 @@ function createPage(pageNo, blank=false) {
   return page;
 }
 
-/* Flip katmanı */
+/* Curl katmanı */
 function buildFlipLayer(frontNo, backNo) {
   const layer = document.createElement("div");
   layer.className = "flip-layer";
@@ -100,7 +100,7 @@ function playFlipSound() {
   } catch {}
 }
 
-/* KENARDAN İLERİ ÇEVİR */
+/* PAGE CURL – İLERİ */
 function flipNext() {
   if (flipping || spread >= TOTAL_PAGES) return;
   flipping = true;
@@ -114,18 +114,20 @@ function flipNext() {
   book.appendChild(layer);
 
   let start = null;
-  const duration = 650; // 🔴 biraz daha yavaş
+  const duration = 750;
 
   function step(ts) {
     if (!start) start = ts;
     const t = Math.min(1, (ts - start) / duration);
 
-    /* 🔴 Hafif eğrilik hissi */
     const rotate = -180 * t;
-    const bend   = Math.sin(t * Math.PI) * 8;
+    const curl   = Math.sin(t * Math.PI) * 14;
+    const lift   = Math.sin(t * Math.PI) * 12;
 
     layer.style.transform =
-      `rotateY(${rotate}deg) skewY(${bend}deg)`;
+      `rotateY(${rotate}deg)
+       rotateX(${curl}deg)
+       translateZ(${lift}px)`;
 
     if (t < 1) {
       requestAnimationFrame(step);
@@ -138,7 +140,7 @@ function flipNext() {
   requestAnimationFrame(step);
 }
 
-/* GERİ ÇEVİR */
+/* GERİ */
 function flipPrev() {
   if (flipping || spread <= 1) return;
   flipping = true;
@@ -153,17 +155,20 @@ function flipPrev() {
   layer.style.transform = "rotateY(-180deg)";
 
   let start = null;
-  const duration = 650;
+  const duration = 750;
 
   function step(ts) {
     if (!start) start = ts;
     const t = Math.min(1, (ts - start) / duration);
 
     const rotate = -180 + 180 * t;
-    const bend   = Math.sin((1 - t) * Math.PI) * 8;
+    const curl   = Math.sin((1 - t) * Math.PI) * 14;
+    const lift   = Math.sin((1 - t) * Math.PI) * 12;
 
     layer.style.transform =
-      `rotateY(${rotate}deg) skewY(${bend}deg)`;
+      `rotateY(${rotate}deg)
+       rotateX(${curl}deg)
+       translateZ(${lift}px)`;
 
     if (t < 1) {
       requestAnimationFrame(step);
@@ -189,7 +194,6 @@ document.addEventListener("click", () => {
       flipSound.currentTime = 0;
     }).catch(()=>{});
   } catch {}
-
   document.querySelectorAll("video").forEach(v => v.play().catch(()=>{}));
 }, { once:true });
 
