@@ -6,7 +6,7 @@ const TOTAL_PAGES = 46;
 // Video olan sayfalar: sayfaNo -> video yolu
 const videoMap = {
   1:  "videos/v01.mp4",
-  5:  "videos/v05.mp4",
+  5:  "videos/v5.mp4",
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
