@@ -2,17 +2,31 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Dört Mevsim Kurttepe</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Okul Dergisi</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div id="book">
-    <!-- SAYFALAR BURAYA JS İLE EKLENECEK -->
+  <div class="app">
+    <div class="book-shell">
+      <div id="book" class="book" aria-label="Dergi"></div>
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn" type="button">Geri</button>
+      <span id="pageLabel">1</span>
+      <button id="nextBtn" type="button">İleri</button>
+    </div>
+
+    <div class="hint" id="hint">
+      Videoların sesli başlaması ve sayfa çevirme sesi için ilk dokunuş/klik gerekir.
+    </div>
   </div>
 
-  <script src="page-flip.browser.js"></script>
+  <!-- Sayfa çevirme sesi (opsiyonel) -->
+  <audio id="turnSound" preload="auto" src="audio/page-turn.mp3"></audio>
+
   <script src="script.js"></script>
 </body>
 </html>
