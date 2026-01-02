@@ -1,14 +1,12 @@
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
+  height: 100vh;
   background: #eaeaea;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
 #book {
@@ -18,9 +16,22 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,.3);
 }
 
-/* VIDEO SAYFA = JPG BOYUTUNDA */
-.stf__item video {
+/* TÜM SAYFALAR AYNI BOYUT */
+.page {
+  width: 450px;
+  height: 650px;
+}
+
+/* RESİM SAYFA */
+.page img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* JPG gibi */
+  object-fit: contain;
+}
+
+/* VIDEO SAYFA */
+.page video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
