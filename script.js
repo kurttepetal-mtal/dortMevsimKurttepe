@@ -1,29 +1,25 @@
-const bookContainer = document.getElementById("book-container");
-const video = document.getElementById("pageVideo");
+const container = document.getElementById("book-container");
 
-/* PageFlip */
-const pageFlip = new St.PageFlip(bookContainer, {
+const pageFlip = new St.PageFlip(container, {
   width: 450,
   height: 650,
   showCover: true
 });
 
-/* Sayfalar */
 pageFlip.loadFromImages([
-  "pages/1.jpg","pages/2.jpg","pages/3.jpg","pages/4.jpg","pages/5.jpg",
-  "pages/6.jpg","pages/7.jpg","pages/8.jpg","pages/9.jpg","pages/10.jpg",
-  "pages/11.jpg","pages/12.jpg","pages/13.jpg","pages/14.jpg","pages/15.jpg",
-  "pages/16.jpg","pages/17.jpg","pages/18.jpg","pages/19.jpg","pages/20.jpg",
-  "pages/21.jpg","pages/22.jpg","pages/23.jpg","pages/24.jpg","pages/25.jpg",
-  "pages/26.jpg","pages/27.jpg","pages/28.jpg","pages/29.jpg","pages/30.jpg",
-  "pages/31.jpg","pages/32.jpg","pages/33.jpg","pages/34.jpg","pages/35.jpg",
-  "pages/36.jpg","pages/37.jpg","pages/38.jpg","pages/39.jpg","pages/40.jpg",
-  "pages/41.jpg","pages/42.jpg","pages/43.jpg","pages/44.jpg","pages/45.jpg",
-  "pages/46.jpg"
+  "sayfalar/1.jpg","sayfalar/2.jpg","sayfalar/3.jpg","sayfalar/4.jpg","sayfalar/5.jpg",
+  "sayfalar/6.jpg","sayfalar/7.jpg","sayfalar/8.jpg","sayfalar/9.jpg","sayfalar/10.jpg",
+  "sayfalar/11.jpg","sayfalar/12.jpg","sayfalar/13.jpg","sayfalar/14.jpg","sayfalar/15.jpg",
+  "sayfalar/16.jpg","sayfalar/17.jpg","sayfalar/18.jpg","sayfalar/19.jpg","sayfalar/20.jpg",
+  "sayfalar/21.jpg","sayfalar/22.jpg","sayfalar/23.jpg","sayfalar/24.jpg","sayfalar/25.jpg",
+  "sayfalar/26.jpg","sayfalar/27.jpg","sayfalar/28.jpg","sayfalar/29.jpg","sayfalar/30.jpg",
+  "sayfalar/31.jpg","sayfalar/32.jpg","sayfalar/33.jpg","sayfalar/34.jpg","sayfalar/35.jpg",
+  "sayfalar/36.jpg","sayfalar/37.jpg","sayfalar/38.jpg","sayfalar/39.jpg","sayfalar/40.jpg",
+  "sayfalar/41.jpg","sayfalar/42.jpg","sayfalar/43.jpg","sayfalar/44.jpg","sayfalar/45.jpg",
+  "sayfalar/46.jpg"
 ]);
 
-/* Videolu sayfalar */
-const videoMap = {
+const videoPages = {
   1:  "videos/v01.mp4",
   5:  "videos/v5.mp4",
   17: "videos/v17.mp4",
@@ -33,57 +29,22 @@ const videoMap = {
   41: "videos/v41.mp4"
 };
 
-let started = false;
+const video = document.createElement("video");
+video.muted = true;
+video.autoplay = true;
+video.loop = true;
+video.playsInline = true;
+video.style.width = "100%";
+video.style.height = "100%";
+video.style.objectFit = "cover";
 
-/* Aktif sayfa */
-function getActivePage() {
-  return (
-    bookContainer.querySelector(".stf__item.--right") ||
-    bookContainer.querySelector(".stf__item.--left")
-  );
-}
-
-/* Videoyu sayfanın içine taşı */
-function moveVideoToPage(pageNo) {
-  const page = getActivePage();
-  const src = videoMap[pageNo];
-  if (!page || !src) {
-    video.style.display = "none";
-    return;
-  }
-
-  page.style.position = "relative";
-
-  video.src = src;
-  video.style.display = "block";
-  video.style.position = "absolute";
-  video.style.inset = "0";
-  video.style.width = "100%";
-  video.style.height = "100%";
-  video.style.objectFit = "cover";
-  video.style.pointerEvents = "none";
-
-  page.appendChild(video);
-}
-
-/* 🔴 TEK VE GERÇEK USER GESTURE */
-document.addEventListener("click", () => {
-  if (started) return;
-  started = true;
-
-  video.muted = true;
-  video.loop = true;
-
-  const pageNo = pageFlip.getCurrentPageIndex() + 1;
-  moveVideoToPage(pageNo);
-
-  video.play(); // 🔴 GARANTİLİ
-}, { once: true });
-
-/* Sayfa değişince SADECE TAŞI */
-pageFlip.on("flip", (e) => {
-  if (!started) return;
-
+pageFlip.on("flip", e => {
   const pageNo = e.data + 1;
-  setTimeout(() => moveVideoToPage(pageNo), 150);
+
+  if (videoPages[pageNo]) {
+    video.src = videoPages[pageNo];
+    container.innerHTML = "";
+    container.appendChild(video);
+    video.play().catch(()=>{});
+  }
 });
