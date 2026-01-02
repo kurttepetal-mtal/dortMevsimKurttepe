@@ -5,54 +5,59 @@ const bookElement = document.getElementById("book");
    type: "image" | "video"
 ========================================= */
 const pages = [
-  { type: "video", src: "videolar/v01.mp4" }, // 1
-  { type: "image", src: "sayfalar/2.jpg" },
-  { type: "image", src: "sayfalar/3.jpg" },
-  { type: "image", src: "sayfalar/4.jpg" },
-  { type: "video", src: "videolar/v05.mp4" }, // 5
-  { type: "image", src: "sayfalar/6.jpg" },
-  { type: "image", src: "sayfalar/7.jpg" },
-  { type: "image", src: "sayfalar/8.jpg" },
-  { type: "image", src: "sayfalar/9.jpg" },
-  { type: "image", src: "sayfalar/10.jpg" },
-  { type: "image", src: "sayfalar/11.jpg" },
-  { type: "image", src: "sayfalar/12.jpg" },
-  { type: "image", src: "sayfalar/13.jpg" },
-  { type: "image", src: "sayfalar/14.jpg" },
-  { type: "image", src: "sayfalar/15.jpg" },
-  { type: "image", src: "sayfalar/16.jpg" },
-  { type: "video", src: "videolar/v17.mp4" }, // 17
-  { type: "image", src: "sayfalar/18.jpg" },
-  { type: "image", src: "sayfalar/19.jpg" },
-  { type: "image", src: "sayfalar/20.jpg" },
-  { type: "image", src: "sayfalar/21.jpg" },
-  { type: "video", src: "videolar/v22.mp4" }, // 22
-  { type: "image", src: "sayfalar/23.jpg" },
-  { type: "video", src: "videolar/v24.mp4" }, // 24
-  { type: "image", src: "sayfalar/25.jpg" },
-  { type: "video", src: "videolar/v26.mp4" }, // 26
-  { type: "image", src: "sayfalar/27.jpg" },
-  { type: "image", src: "sayfalar/28.jpg" },
-  { type: "image", src: "sayfalar/29.jpg" },
-  { type: "image", src: "sayfalar/30.jpg" },
-  { type: "image", src: "sayfalar/31.jpg" },
-  { type: "image", src: "sayfalar/32.jpg" },
-  { type: "image", src: "sayfalar/33.jpg" },
-  { type: "image", src: "sayfalar/34.jpg" },
-  { type: "image", src: "sayfalar/35.jpg" },
-  { type: "image", src: "sayfalar/36.jpg" },
-  { type: "image", src: "sayfalar/37.jpg" },
-  { type: "image", src: "sayfalar/38.jpg" },
-  { type: "image", src: "sayfalar/39.jpg" },
-  { type: "image", src: "sayfalar/40.jpg" },
-  { type: "video", src: "videolar/v41.mp4" }, // 41
-  { type: "image", src: "sayfalar/42.jpg" },
-  { type: "image", src: "sayfalar/43.jpg" },
-  { type: "image", src: "sayfalar/44.jpg" },
-  { type: "image", src: "sayfalar/45.jpg" },
-  { type: "image", src: "sayfalar/46.jpg" }
-];
+   { type: "video", src: "videos/v01.mp4" },
+  { type: "image", src: "pages/2.jpg" },
+  { type: "image", src: "pages/3.jpg" },
+  { type: "image", src: "pages/4.jpg" },
 
+  { type: "video", src: "videos/v05.mp4" },
+  { type: "image", src: "pages/6.jpg" },
+  { type: "image", src: "pages/7.jpg" },
+  { type: "image", src: "pages/8.jpg" },
+  { type: "image", src: "pages/9.jpg" },
+  { type: "image", src: "pages/10.jpg" },
+  { type: "image", src: "pages/11.jpg" },
+  { type: "image", src: "pages/12.jpg" },
+  { type: "image", src: "pages/13.jpg" },
+  { type: "image", src: "pages/14.jpg" },
+  { type: "image", src: "pages/15.jpg" },
+  { type: "image", src: "pages/16.jpg" },
+
+  { type: "video", src: "videos/v17.mp4" },
+  { type: "image", src: "pages/18.jpg" },
+  { type: "image", src: "pages/19.jpg" },
+  { type: "image", src: "pages/20.jpg" },
+  { type: "image", src: "pages/21.jpg" },
+
+  { type: "video", src: "videos/v22.mp4" },
+  { type: "image", src: "pages/23.jpg" },
+
+  { type: "video", src: "videos/v24.mp4" },
+  { type: "image", src: "pages/25.jpg" },
+
+  { type: "video", src: "videos/v26.mp4" },
+  { type: "image", src: "pages/27.jpg" },
+  { type: "image", src: "pages/28.jpg" },
+  { type: "image", src: "pages/29.jpg" },
+  { type: "image", src: "pages/30.jpg" },
+  { type: "image", src: "pages/31.jpg" },
+  { type: "image", src: "pages/32.jpg" },
+  { type: "image", src: "pages/33.jpg" },
+  { type: "image", src: "pages/34.jpg" },
+  { type: "image", src: "pages/35.jpg" },
+  { type: "image", src: "pages/36.jpg" },
+  { type: "image", src: "pages/37.jpg" },
+  { type: "image", src: "pages/38.jpg" },
+  { type: "image", src: "pages/39.jpg" },
+  { type: "image", src: "pages/40.jpg" },
+
+  { type: "video", src: "videos/v41.mp4" },
+  { type: "image", src: "pages/42.jpg" },
+  { type: "image", src: "pages/43.jpg" },
+  { type: "image", src: "pages/44.jpg" },
+  { type: "image", src: "pages/45.jpg" },
+  { type: "image", src: "pages/46.jpg" }
+];
 /* =========================================
    HTML SAYFALARI OLUŞTUR
 ========================================= */
