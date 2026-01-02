@@ -10,48 +10,40 @@ const videoPages = {
   41: "videos/v41.mp4"
 };
 
-const book = document.getElementById("book");
+const bookEl = document.getElementById("book");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const indicator = document.getElementById("pageIndicator");
 const hint = document.getElementById("hint");
 
-/* 🔊 SES */
+/* Ses */
 const flipSound = new Audio("audio/page-turn.mp3");
 flipSound.volume = 0.35;
 
-let spread = 1;
-let flipping = false;
+let unlocked = false;
 
-/* JPG uyumu */
-function setSmartImg(img, pageNo) {
-  const padded = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
-  const plain  = `pages/${pageNo}.jpg`;
-  img.src = padded;
-  img.onerror = () => {
-    img.onerror = null;
-    img.src = plain;
-  };
-}
-
-/* Sayfa */
-function createPage(pageNo, blank=false) {
+/* Sayfa DOM üret */
+function createHtmlPage(pageNo){
   const page = document.createElement("div");
   page.className = "page";
-
-  if (blank) return page;
+  page.dataset.pageNo = String(pageNo);
 
   const img = document.createElement("img");
-  setSmartImg(img, pageNo);
+  img.className = "bg";
+  img.alt = `Sayfa ${pageNo}`;
+  img.src = `pages/${String(pageNo).padStart(2,"0")}.jpg`;
+  img.onerror = () => { img.src = `pages/${pageNo}.jpg`; };
   page.appendChild(img);
 
   if (videoPages[pageNo]) {
     const v = document.createElement("video");
+    v.className = "vid";
     v.src = videoPages[pageNo];
     v.muted = true;
     v.playsInline = true;
     v.loop = true;
     v.autoplay = true;
+    v.preload = "metadata";
     v.controls = true;
     page.appendChild(v);
   }
@@ -59,142 +51,110 @@ function createPage(pageNo, blank=false) {
   return page;
 }
 
-/* Curl katmanı */
-function buildFlipLayer(frontNo, backNo) {
-  const layer = document.createElement("div");
-  layer.className = "flip-layer";
-
-  const front = document.createElement("div");
-  front.className = "flip-front";
-  front.appendChild(createPage(frontNo));
-
-  const back = document.createElement("div");
-  back.className = "flip-back";
-  back.appendChild(createPage(backNo));
-
-  layer.appendChild(front);
-  layer.appendChild(back);
-  return layer;
+/* Sayfaları kitap içine ekle */
+const pages = [];
+for(let i=1;i<=TOTAL_PAGES;i++){
+  const p = createHtmlPage(i);
+  pages.push(p);
+  bookEl.appendChild(p);
 }
 
-/* Render */
-function render() {
-  book.innerHTML = "";
+/* PageFlip başlat */
+const pageFlip = new St.PageFlip(bookEl, {
+  width: 450,
+  height: 650,
+  size: "fixed",
+  showCover: true,          // ✅ kapak tek
+  maxShadowOpacity: 0.6,
+  flippingTime: 700,        // daha “dergi” gibi
+  useMouseEvents: true,
+  swipeDistance: 30
+});
 
-  if (spread === 1) {
-    book.appendChild(createPage(0, true));
-    book.appendChild(createPage(1));
+pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+
+/* Sayfa numarası yazdırma */
+function updateIndicator(){
+  // getCurrentPageIndex: 0-based
+  const idx = pageFlip.getCurrentPageIndex();
+  const pageNo = idx + 1;
+
+  // showCover: kapakta tek sayfa mantığı
+  if (pageNo === 1) {
     indicator.textContent = `1 / ${TOTAL_PAGES}`;
   } else {
-    book.appendChild(createPage(spread));
-    book.appendChild(createPage(spread + 1));
-    indicator.textContent = `${spread}–${spread+1} / ${TOTAL_PAGES}`;
+    // Book modunda genelde çift görünüyor; biz 2’li aralığı yazalım:
+    const left = pageNo % 2 === 0 ? pageNo : pageNo - 1;
+    const right = Math.min(TOTAL_PAGES, left + 1);
+    indicator.textContent = `${left}–${right} / ${TOTAL_PAGES}`;
   }
+
+  prevBtn.disabled = (pageNo <= 1);
+  nextBtn.disabled = (pageNo >= TOTAL_PAGES);
 }
 
-/* Ses */
-function playFlipSound() {
-  try {
-    flipSound.currentTime = 0;
-    flipSound.play().catch(()=>{});
-  } catch {}
-}
+/* Videoları performanslı yönet: sadece görünen sayfalarda oynat */
+function syncVideos(){
+  const idx = pageFlip.getCurrentPageIndex();
+  const visible = new Set([idx, idx+1]); // olası sağ sayfa
 
-/* PAGE CURL – İLERİ */
-function flipNext() {
-  if (flipping || spread >= TOTAL_PAGES) return;
-  flipping = true;
-  playFlipSound();
+  document.querySelectorAll(".page video").forEach(v => {
+    const page = v.closest(".page");
+    const no = Number(page?.dataset.pageNo || "0");
+    const pageIndex = no - 1;
 
-  const isCover = (spread === 1);
-  const front = isCover ? 1 : spread + 1;
-  const back  = isCover ? 2 : spread + 2;
-
-  const layer = buildFlipLayer(front, back);
-  book.appendChild(layer);
-
-  let start = null;
-  const duration = 750;
-
-  function step(ts) {
-    if (!start) start = ts;
-    const t = Math.min(1, (ts - start) / duration);
-
-    const rotate = -180 * t;
-    const curl   = Math.sin(t * Math.PI) * 14;
-    const lift   = Math.sin(t * Math.PI) * 12;
-
-    layer.style.transform =
-      `rotateY(${rotate}deg)
-       rotateX(${curl}deg)
-       translateZ(${lift}px)`;
-
-    if (t < 1) {
-      requestAnimationFrame(step);
+    if (visible.has(pageIndex)) {
+      // görünür: oynat
+      if (unlocked) v.play().catch(()=>{});
     } else {
-      spread = isCover ? 2 : spread + 2;
-      flipping = false;
-      render();
+      // görünmez: durdur
+      try { v.pause(); } catch {}
     }
-  }
-  requestAnimationFrame(step);
+  });
 }
 
-/* GERİ */
-function flipPrev() {
-  if (flipping || spread <= 1) return;
-  flipping = true;
-  playFlipSound();
-
-  const target = (spread === 2) ? 1 : spread - 2;
-  const front = target === 1 ? 1 : target + 1;
-  const back  = spread;
-
-  const layer = buildFlipLayer(front, back);
-  book.appendChild(layer);
-  layer.style.transform = "rotateY(-180deg)";
-
-  let start = null;
-  const duration = 750;
-
-  function step(ts) {
-    if (!start) start = ts;
-    const t = Math.min(1, (ts - start) / duration);
-
-    const rotate = -180 + 180 * t;
-    const curl   = Math.sin((1 - t) * Math.PI) * 14;
-    const lift   = Math.sin((1 - t) * Math.PI) * 12;
-
-    layer.style.transform =
-      `rotateY(${rotate}deg)
-       rotateX(${curl}deg)
-       translateZ(${lift}px)`;
-
-    if (t < 1) {
-      requestAnimationFrame(step);
-    } else {
-      spread = target;
-      flipping = false;
-      render();
-    }
-  }
-  requestAnimationFrame(step);
+/* Flip sesi */
+function playFlip(){
+  if (!unlocked) return;
+  try { flipSound.currentTime = 0; flipSound.play().catch(()=>{}); } catch {}
 }
+
+/* Olaylar */
+pageFlip.on("flip", () => {
+  playFlip();
+  updateIndicator();
+  // animasyon bitince video senkronla
+  setTimeout(syncVideos, 200);
+});
+
+pageFlip.on("changeState", (e) => {
+  // state: "flipping" vs "read"
+  if (e.data === "read") {
+    updateIndicator();
+    syncVideos();
+  }
+});
 
 /* Butonlar */
-nextBtn.onclick = flipNext;
-prevBtn.onclick = flipPrev;
+prevBtn.addEventListener("click", () => pageFlip.flipPrev());
+nextBtn.addEventListener("click", () => pageFlip.flipNext());
 
-/* Autoplay unlock */
+/* Autoplay unlock: ilk tıklama */
 document.addEventListener("click", () => {
-  hint.style.display = "none";
-  try {
-    flipSound.play().then(() => {
-      flipSound.pause();
-      flipSound.currentTime = 0;
-    }).catch(()=>{});
-  } catch {}
-  document.querySelectorAll("video").forEach(v => v.play().catch(()=>{}));
+  if (unlocked) return;
+  unlocked = true;
+  if (hint) hint.style.display = "none";
+
+  // sesi “unlock” et
+  flipSound.play().then(() => {
+    flipSound.pause();
+    flipSound.currentTime = 0;
+  }).catch(()=>{});
+
+  // görünür videoları oynat
+  syncVideos();
 }, { once:true });
 
-render();
+/* Başlat */
+updateIndicator();
+syncVideos();
