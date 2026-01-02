@@ -9,43 +9,41 @@ body {
   overflow: hidden;
 }
 
-/* Kitabı ortala */
+/* SAHNE – 3D DERİNLİK */
 .stage {
   height: calc(100vh - 90px);
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1800px; /* 🔴 3D DERİNLİK */
+  perspective: 2200px; /* 🔴 DERİNLİK ARTIRILDI */
 }
 
-/* Kitap */
+/* KİTAP */
 #book {
   width: 900px;
   height: 650px;
   background: #fff;
   display: flex;
-  box-shadow: 0 15px 40px rgba(0,0,0,.3);
-  transform-style: preserve-3d;
   position: relative;
+  box-shadow: 0 18px 45px rgba(0,0,0,.35);
+  transform-style: preserve-3d;
 }
 
-/* Sayfa */
+/* SAYFA */
 .page {
   width: 50%;
   height: 100%;
   position: relative;
   overflow: hidden;
-  backface-visibility: hidden;
+  background: #fff;
 }
 
-/* Görsel */
 .page img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Video */
 .page video {
   position: absolute;
   inset: 0;
@@ -54,36 +52,54 @@ body {
   object-fit: cover;
 }
 
-/* 3D FLIP KATMANI */
+/* ===============================
+   KENARDAN ÇEVRİLEN SAYFA
+================================ */
 .flip-layer {
   position: absolute;
+  top: 0;
+  right: 0;
   width: 50%;
   height: 100%;
-  right: 0;
-  top: 0;
-  transform-origin: left center;
+
+  transform-origin: right center; /* 🔴 SAĞ KENARDAN */
   transform-style: preserve-3d;
-  z-index: 20;
+  z-index: 30;
 }
 
+/* ÖN / ARKA */
 .flip-front,
 .flip-back {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   backface-visibility: hidden;
-}
-
-.flip-front {
   background: #fff;
 }
 
+/* ARKA SAYFA */
 .flip-back {
-  background: #fff;
   transform: rotateY(180deg);
 }
 
-/* ALT ORTA KONTROLLER */
+/* GÖLGE – KENAR KARARMASI */
+.flip-layer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 25px;
+  height: 100%;
+  background: linear-gradient(
+    to left,
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0)
+  );
+  pointer-events: none;
+}
+
+/* ===============================
+   ALT ORTA KONTROLLER (KİLİTLİ)
+================================ */
 #controls {
   position: fixed;
   bottom: 20px;
@@ -92,7 +108,7 @@ body {
   display: flex;
   align-items: center;
   gap: 18px;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.82);
   padding: 10px 18px;
   border-radius: 30px;
   z-index: 50;
@@ -118,7 +134,7 @@ body {
   text-align: center;
 }
 
-/* Bilgi */
+/* BİLGİ */
 #hint {
   position: fixed;
   bottom: 65px;
@@ -128,7 +144,7 @@ body {
   color: #333;
 }
 
-/* Mobil */
+/* MOBİL */
 @media (max-width: 900px) {
   #book {
     width: 95vw;
