@@ -27,7 +27,7 @@ const turnSound = document.getElementById("turnSound");
 /* =========================================================
    DURUMLAR
 ========================================================= */
-let currentPage = 1; // mobilde aktif sayfa, masaüstünde referans
+let currentPage = 1;   // HER ZAMAN AKTİF SAYFA
 let zoom = 1;
 
 /* =========================================================
@@ -44,7 +44,7 @@ function makePage(position, pageNo) {
   const page = document.createElement("div");
   page.className = `page ${position}`;
 
-  if (pageNo == null || pageNo < 1 || pageNo > TOTAL_PAGES) {
+  if (!pageNo || pageNo < 1 || pageNo > TOTAL_PAGES) {
     page.style.background = "transparent";
     return page;
   }
@@ -66,7 +66,6 @@ function makePage(position, pageNo) {
     video.controls = true;
     page.appendChild(video);
 
-    // Masaüstü için garanti başlatma
     const playOverlay = document.createElement("div");
     playOverlay.className = "video-play-overlay";
     playOverlay.innerHTML = "▶";
@@ -82,7 +81,7 @@ function makePage(position, pageNo) {
 }
 
 /* =========================================================
-   RENDER
+   RENDER (TEK KAYNAK)
 ========================================================= */
 function render() {
   bookEl.innerHTML = "";
@@ -99,47 +98,38 @@ function render() {
 
   /* ================= MASAÜSTÜ ================= */
 
+  let leftPageNo = null;
+  let rightPageNo = null;
+
   // 🔴 KAPAK
   if (currentPage === 1) {
-    bookEl.appendChild(makePage("left", null));
-    bookEl.appendChild(makePage("right", 1));
-
-    pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
-    prevBtn.disabled = true;
-    nextBtn.disabled = false;
-    return;
+    leftPageNo = null;
+    rightPageNo = 1;
+  } 
+  else {
+    if (currentPage % 2 === 0) {
+      // çift → sol
+      leftPageNo = currentPage;
+      rightPageNo = currentPage + 1;
+    } else {
+      // tek → sağ
+      leftPageNo = currentPage - 1;
+      rightPageNo = currentPage;
+    }
   }
 
-  let leftPage, rightPage;
+  bookEl.appendChild(makePage("left", leftPageNo));
+  bookEl.appendChild(makePage("right", rightPageNo));
 
-  // 🔴 VIDEO VARSA → SPREAD VİDEO NUMARASINA GÖRE
-  if (videoMap[currentPage]) {
-    if (currentPage % 2 === 0) {
-      // çift → solda video
-      leftPage  = currentPage;
-      rightPage = currentPage + 1;
-    } else {
-      // tek → sağda video
-      leftPage  = currentPage - 1;
-      rightPage = currentPage;
-    }
+  // Etiket
+  if (leftPageNo && rightPageNo) {
+    pageLabel.textContent = `${leftPageNo}-${rightPageNo} / ${TOTAL_PAGES}`;
   } else {
-    // 🔴 NORMAL SPREAD
-    if (currentPage % 2 === 0) {
-      leftPage  = currentPage;
-      rightPage = currentPage + 1;
-    } else {
-      leftPage  = currentPage - 1;
-      rightPage = currentPage;
-    }
+    pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
   }
 
-  bookEl.appendChild(makePage("left", leftPage));
-  bookEl.appendChild(makePage("right", rightPage));
-
-  pageLabel.textContent = `${leftPage}-${rightPage} / ${TOTAL_PAGES}`;
-  prevBtn.disabled = leftPage <= 2;
-  nextBtn.disabled = rightPage >= TOTAL_PAGES;
+  prevBtn.disabled = currentPage <= 1;
+  nextBtn.disabled = currentPage >= TOTAL_PAGES;
 }
 
 /* =========================================================
