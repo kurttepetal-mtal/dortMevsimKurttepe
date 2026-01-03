@@ -1,21 +1,18 @@
 * { box-sizing: border-box; }
 
 html, body {
-  width: 100%;
-  height: 100%;
   margin: 0;
+  padding: 0;
   background: #eaeaea;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* UYGULAMA */
 #app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Kitap alanını ortala */
 #book-wrapper {
   flex: 1;
   display: flex;
@@ -24,53 +21,55 @@ html, body {
   padding: 16px;
 }
 
-/* KİTAP: artık FLEX spread */
+/* ================= KİTAP ================= */
 #book {
   position: relative;
   width: 900px;
   height: 600px;
   background: #fff;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
   overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
 
-  display: flex;              /* 🔒 sol + sağ yan yana */
-  flex-direction: row;
-  align-items: stretch;
+  display: flex;
+  transform-origin: center center;
 }
 
-/* Sayfalar */
+/* ================= SAYFALAR ================= */
 .page {
-  position: relative;         /* 🔒 video absolute bunun içinde kalsın */
+  position: relative;
   height: 100%;
   overflow: hidden;
   background: #fff;
 }
 
-/* Masaüstü: sol/sağ yarım */
-.page.left  { width: 50%; }
-.page.right { width: 50%; }
+.page.left,
+.page.right {
+  width: 50%;
+}
 
-/* Kapakta sol boşken sağ tek gösterim: sol şeffaf */
-.page.blank { background: transparent; }
+.page.blank {
+  background: transparent;
+}
 
-/* Mobil: tek sayfa */
-.page.single { width: 100%; }
+.page.single {
+  width: 100%;
+}
 
-/* Arkaplan görseli */
+/* Görsel */
 .page img.bg {
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* yazılar kırpılmasın */
+  object-fit: contain;
   display: block;
 }
 
-/* Video overlay */
+/* Video */
 .page.video-page video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* sayfa oranına uysun */
+  object-fit: contain;
   z-index: 5;
 }
 
@@ -88,7 +87,7 @@ html, body {
   cursor: pointer;
 }
 
-/* Kontroller (pencereye sabit – senin istediğin gibi) */
+/* ================= KONTROLLER ================= */
 #controls {
   position: fixed;
   bottom: 16px;
@@ -123,13 +122,13 @@ html, body {
   font-size: 14px;
 }
 
-/* MOBİL */
+/* ================= MOBİL ================= */
 @media (max-width: 768px) {
   #book {
     width: 100%;
     height: auto;
-    box-shadow: 0 10px 22px rgba(0,0,0,0.20);
-    display: block;          /* tek sayfada flex gerekmez */
+    display: block;
+    perspective: 1200px; /* 🔴 3D hissi */
   }
 
   .page {
@@ -137,12 +136,34 @@ html, body {
     height: auto;
   }
 
-  .page img.bg {
-    width: 100%;
-    height: auto;
+  /* 🔴 MOBİL GEÇİŞ ANİMASYONU */
+  .mobile-enter {
+    animation: mobileEnter 0.45s ease forwards;
   }
 
-  .page.video-page video {
-    height: 100%;
+  .mobile-exit {
+    animation: mobileExit 0.45s ease forwards;
+  }
+
+  @keyframes mobileEnter {
+    from {
+      transform: translateX(30%) rotateY(-10deg);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes mobileExit {
+    from {
+      transform: translateX(0) rotateY(0deg);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-30%) rotateY(10deg);
+      opacity: 0;
+    }
   }
 }
