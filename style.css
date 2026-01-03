@@ -128,7 +128,7 @@ html, body {
     width: 100%;
     height: auto;
     display: block;
-    perspective: 1200px; /* 🔴 3D hissi */
+    perspective: 1200px;
   }
 
   .page {
@@ -136,42 +136,7 @@ html, body {
     height: auto;
   }
 
-  /* 🔴 MOBİL GEÇİŞ ANİMASYONU */
-  .mobile-enter {
-    animation: mobileEnter 0.45s ease forwards;
-  }
-
-  .mobile-exit {
-    animation: mobileExit 0.45s ease forwards;
-  }
-
-  @keyframes mobileEnter {
-    from {
-      transform: translateX(30%) rotateY(-10deg);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0) rotateY(0deg);
-      opacity: 1;
-    }
-  }
-
-  @keyframes mobileExit {
-    from {
-      transform: translateX(0) rotateY(0deg);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(-30%) rotateY(10deg);
-      opacity: 0;
-    }
-  }
-}
-/* =========================
-   MOBİL CROSS-SLIDE EFEKT
-   (MEVCUT YERLEŞİME DOKUNMAZ)
-========================= */
-@media (max-width: 768px) {
+  /* ===== MOBİL CROSS-SLIDE (TEK VE NET) ===== */
   .mobile-slide-wrapper {
     position: relative;
     width: 100%;
@@ -217,4 +182,3 @@ html, body {
     }
   }
 }
-
