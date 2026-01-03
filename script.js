@@ -7,7 +7,7 @@ const videoMap = {
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
-  26: "videos/v26.mp4", // 🔴 MOBİLDE SESSİZ KALACAK
+  26: "videos/v26.mp4",
   41: "videos/v41.mp4",
   47: "videos/v01.mp4"
 };
@@ -58,37 +58,20 @@ function makePage(type, pageNo) {
 
     const video = document.createElement("video");
     video.src = videoMap[pageNo];
+    video.muted = true;
     video.loop = true;
     video.playsInline = true;
     video.controls = true;
-
-    /* 🔒 26. SAYFA MOBİLDE HER ZAMAN SESSİZ */
-    if (pageNo === 26 && isMobile()) {
-      video.muted = true;
-      video.setAttribute("data-force-muted", "1");
-    } else {
-      video.muted = true; // autoplay için başlangıçta yine sessiz
-    }
-
     page.appendChild(video);
 
     const overlay = document.createElement("div");
     overlay.className = "video-play-overlay";
     overlay.innerHTML = "▶";
-
     overlay.onclick = () => {
       overlay.style.display = "none";
-
-      // 🔒 26. sayfada sesi ASLA açma
-      if (pageNo === 26 && isMobile()) {
-        video.play().catch(() => {});
-        return;
-      }
-
       video.muted = false;
       video.play().catch(() => {});
     };
-
     page.appendChild(overlay);
   }
 
@@ -100,7 +83,6 @@ function makePage(type, pageNo) {
 ========================================================= */
 function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
-
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -135,6 +117,10 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
    RENDER
 ========================================================= */
 function render(withAnimation = false) {
+
+  // 🔴 KRİTİK KORUMA (GÖZ KIRPMAYI BİTİRİR)
+  if (isMobile() && isAnimating) return;
+
   const book = document.getElementById("book");
   const pageLabel = document.getElementById("pageLabel");
   if (!book) return;
