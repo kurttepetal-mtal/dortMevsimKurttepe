@@ -46,15 +46,15 @@ html, body {
   width: 50%;
 }
 
-.page.single {
-  width: 100%;
-}
-
 .page.blank {
   background: transparent;
 }
 
-/* Görsel */
+.page.single {
+  width: 100%;
+}
+
+/* ================= GÖRSEL ================= */
 .page img.bg {
   width: 100%;
   height: 100%;
@@ -62,7 +62,7 @@ html, body {
   display: block;
 }
 
-/* Video */
+/* ================= VIDEO ================= */
 .page.video-page video {
   position: absolute;
   inset: 0;
@@ -72,7 +72,7 @@ html, body {
   z-index: 5;
 }
 
-/* Play overlay */
+/* ================= PLAY OVERLAY ================= */
 .video-play-overlay {
   position: absolute;
   inset: 0;
@@ -111,23 +111,24 @@ html, body {
   border: none;
   background: #333;
   color: #fff;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
 }
 
 #controls span {
-  min-width: 84px;
+  min-width: 70px;
   text-align: center;
   font-size: 14px;
 }
 
 /* ================= MOBİL ================= */
 @media (max-width: 768px) {
+
   #book {
     width: 100%;
     height: auto;
     display: block;
-    max-width: 560px;
+    perspective: 1200px;
   }
 
   .page {
@@ -135,22 +136,98 @@ html, body {
     height: auto;
   }
 
-  .page img.bg,
-  .page.video-page video {
+  /* ===== MOBİL CROSS-SLIDE ===== */
+  .mobile-slide-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .mobile-slide-old,
+  .mobile-slide-new {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    will-change: transform, opacity;
+  }
+
+  .mobile-slide-old {
+    animation: slideOldOut 0.32s ease forwards;
+  }
+
+  .mobile-slide-new {
+    animation: slideNewIn 0.32s ease forwards;
+  }
+
+  @keyframes slideOldOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-35%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideNewIn {
+    from {
+      transform: translateX(35%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* =========================================================
+     🔴 KAPAK SAYFASI (1.jpg) – KIRPILMA ÖNLEME
+     SADECE KAPAKTA DEVREYE GİRER
+  ========================================================= */
+  #book:has(.page.single img[src$="/1.jpg"]),
+  #book:has(.page.single img[src$="1.jpg"]) {
+    height: auto !important;
+    overflow: visible;
+  }
+
+  #book:has(.page.single img[src$="/1.jpg"]) .page.single,
+  #book:has(.page.single img[src$="1.jpg"]) .page.single {
+    height: auto;
+    overflow: visible;
+  }
+
+  #book:has(.page.single img[src$="/1.jpg"]) img.bg,
+  #book:has(.page.single img[src$="1.jpg"]) img.bg {
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  /* =========================================================
+     🔴 MOBİL – VİDEO SAYFASI BOYUT DÜZELTME
+     KÜÇÜK DİKDÖRTGEN SORUNUNU ÇÖZER
+     MEVCUT YERLEŞİME DOKUNMAZ
+  ========================================================= */
+  .page.video-page {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;   /* Dergi oranı */
     height: auto;
   }
 
-  /* 🔴 MOBİL KISA FADE (SADECE CLASS EKLENİNCE) */
-  .mobile-fade {
-    animation: mobileFadeIn 0.22s ease-out;
+  .page.video-page video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
-  @keyframes mobileFadeIn {
-    from {
-      opacity: 0.25;
-    }
-    to {
-      opacity: 1;
-    }
+  .page.video-page .video-play-overlay {
+    position: absolute;
+    inset: 0;
   }
 }
