@@ -7,7 +7,7 @@ const videoMap = {
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
-  26: "videos/v26.mp4",
+  26: "videos/v26.mp4", // 🔴 MOBİLDE SESSİZ KALACAK
   41: "videos/v41.mp4",
   47: "videos/v01.mp4"
 };
@@ -26,13 +26,12 @@ function isMobile() {
 }
 
 /* =========================================================
-   MOBİL KİTAP YÜKSEKLİĞİ KİLİDİ (KRİTİK)
+   MOBİL KİTAP YÜKSEKLİĞİ KİLİDİ
 ========================================================= */
 function lockMobileBookHeight() {
   const book = document.getElementById("book");
   if (!book || !isMobile()) return;
 
-  // A4'e yakın oran: 4 / 3
   const width = book.offsetWidth;
   book.style.height = Math.round(width * 1.35) + "px";
 }
@@ -59,20 +58,37 @@ function makePage(type, pageNo) {
 
     const video = document.createElement("video");
     video.src = videoMap[pageNo];
-    video.muted = true;
     video.loop = true;
     video.playsInline = true;
     video.controls = true;
+
+    /* 🔒 26. SAYFA MOBİLDE HER ZAMAN SESSİZ */
+    if (pageNo === 26 && isMobile()) {
+      video.muted = true;
+      video.setAttribute("data-force-muted", "1");
+    } else {
+      video.muted = true; // autoplay için başlangıçta yine sessiz
+    }
+
     page.appendChild(video);
 
     const overlay = document.createElement("div");
     overlay.className = "video-play-overlay";
     overlay.innerHTML = "▶";
+
     overlay.onclick = () => {
       overlay.style.display = "none";
+
+      // 🔒 26. sayfada sesi ASLA açma
+      if (pageNo === 26 && isMobile()) {
+        video.play().catch(() => {});
+        return;
+      }
+
       video.muted = false;
       video.play().catch(() => {});
     };
+
     page.appendChild(overlay);
   }
 
@@ -80,7 +96,7 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (STABİL)
+   MOBİL CROSS-SLIDE
 ========================================================= */
 function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
@@ -140,7 +156,7 @@ function render(withAnimation = false) {
   }
 
   /* ================= MASAÜSTÜ (KİLİTLİ) ================= */
-  book.style.height = ""; // mobil kilidi kaldır
+  book.style.height = "";
   book.innerHTML = "";
 
   let left = null, right = null;
