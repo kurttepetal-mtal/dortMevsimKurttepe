@@ -26,6 +26,18 @@ function isMobile() {
 }
 
 /* =========================================================
+   MOBİL KİTAP YÜKSEKLİĞİ KİLİDİ (KRİTİK)
+========================================================= */
+function lockMobileBookHeight() {
+  const book = document.getElementById("book");
+  if (!book || !isMobile()) return;
+
+  // A4'e yakın oran: 4 / 3
+  const width = book.offsetWidth;
+  book.style.height = Math.round(width * 1.35) + "px";
+}
+
+/* =========================================================
    SAYFA OLUŞTURMA
 ========================================================= */
 function makePage(type, pageNo) {
@@ -68,12 +80,11 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (KOPYA İLE)
+   MOBİL CROSS-SLIDE (STABİL)
 ========================================================= */
 function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
 
-  // İlk açılış
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -82,13 +93,11 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
 
   isAnimating = true;
 
-  // 🔴 ESKİ SAYFANIN KOPYASI
   const oldClone = oldPage.cloneNode(true);
 
   const wrapper = document.createElement("div");
   wrapper.className = "mobile-slide-wrapper";
-  wrapper.style.height =
-    oldPage.offsetHeight || bookEl.offsetHeight || "auto";
+  wrapper.style.height = bookEl.offsetHeight + "px";
 
   oldClone.classList.add("mobile-slide-old");
   newPageEl.classList.add("mobile-slide-new");
@@ -114,8 +123,9 @@ function render(withAnimation = false) {
   const pageLabel = document.getElementById("pageLabel");
   if (!book) return;
 
-  /* ================= MOBİL ================= */
   if (isMobile()) {
+    lockMobileBookHeight();
+
     const newPage = makePage("single", currentPage);
 
     if (withAnimation) {
@@ -130,6 +140,7 @@ function render(withAnimation = false) {
   }
 
   /* ================= MASAÜSTÜ (KİLİTLİ) ================= */
+  book.style.height = ""; // mobil kilidi kaldır
   book.innerHTML = "";
 
   let left = null, right = null;
