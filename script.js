@@ -26,22 +26,16 @@ const zoomOutBtn = document.getElementById("zoomOut");
 const zoomLabel  = document.getElementById("zoomLevel");
 
 /* =========================================================
-   ZOOM (AUTO-FIT + MANUEL)
+   ZOOM (AUTO-FIT)
 ========================================================= */
 let zoom = 1;
 const ZOOM_MIN = 0.6;
 const ZOOM_MAX = 3;
 const ZOOM_STEP = 0.2;
 
-/* 🔴 MOBİLDE OTOMATİK SIĞDIR */
 function calculateInitialZoom() {
   const screenWidth = window.innerWidth;
-  const bookWidth = 900;
-
-  if (screenWidth < bookWidth) {
-    return Math.max(ZOOM_MIN, screenWidth / bookWidth);
-  }
-  return 1;
+  return screenWidth < 900 ? Math.max(ZOOM_MIN, screenWidth / 900) : 1;
 }
 
 function applyZoom() {
@@ -49,33 +43,36 @@ function applyZoom() {
   zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
 }
 
-/* İlk açılış */
 zoom = calculateInitialZoom();
 applyZoom();
 
-/* Manuel zoom */
-zoomInBtn.addEventListener("click", () => {
+zoomInBtn.onclick = () => {
   zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
   applyZoom();
-});
+};
 
-zoomOutBtn.addEventListener("click", () => {
+zoomOutBtn.onclick = () => {
   zoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP);
   applyZoom();
-});
+};
 
 /* =========================================================
-   SAYFA DURUMU
+   DURUM
 ========================================================= */
-let spreadStart = 1;
+let currentPage = 1;
 let loadedUntil = CHUNK_SIZE;
+
+/* Mobil mi? */
+function isMobile() {
+  return window.innerWidth <= 768;
+}
 
 /* =========================================================
    SAYFA OLUŞTURMA
 ========================================================= */
-function createPage(side, pageNo) {
+function createPage(pageNo) {
   const page = document.createElement("div");
-  page.className = `page ${side}`;
+  page.className = "page single";
   page.dataset.pageNo = pageNo;
 
   const img = document.createElement("img");
@@ -107,41 +104,63 @@ function ensureLoaded(pageNo) {
 }
 
 /* =========================================================
-   RENDER
+   RENDER (MOBİL: TEK SAYFA)
 ========================================================= */
-function render() {
-  bookEl.innerHTML = "";
+function render(direction = "none") {
+  ensureLoaded(currentPage);
 
-  const isCover = (spreadStart === 1);
-  bookEl.classList.toggle("cover-mode", isCover);
+  const oldPage = bookEl.querySelector(".page");
+  const newPage = createPage(currentPage);
 
-  ensureLoaded(spreadStart + 1);
+  if (direction !== "none" && oldPage) {
+    newPage.style.position = "absolute";
+    newPage.style.top = 0;
+    newPage.style.left = 0;
+    newPage.style.width = "100%";
+    newPage.style.opacity = 0;
+    newPage.style.transform =
+      direction === "next"
+        ? "translateX(40px)"
+        : "translateX(-40px)";
 
-  bookEl.appendChild(createPage("left", spreadStart));
+    bookEl.appendChild(newPage);
 
-  if (!isCover && spreadStart + 1 <= TOTAL_PAGES) {
-    bookEl.appendChild(createPage("right", spreadStart + 1));
-  }
+    requestAnimationFrame(() => {
+      newPage.style.transition = "all 0.35s ease";
+      newPage.style.opacity = 1;
+      newPage.style.transform = "translateX(0)";
+    });
 
-  if (isCover) {
-    pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
+    setTimeout(() => {
+      bookEl.innerHTML = "";
+      bookEl.appendChild(newPage);
+    }, 360);
   } else {
-    pageLabel.textContent = `${spreadStart}-${spreadStart + 1} / ${TOTAL_PAGES}`;
+    bookEl.innerHTML = "";
+    bookEl.appendChild(newPage);
   }
+
+  pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
+  prevBtn.disabled = currentPage <= 1;
+  nextBtn.disabled = currentPage >= TOTAL_PAGES;
 }
 
 /* =========================================================
-   GEÇİŞ
+   GEÇİŞLER (MOBİL: 1’er 1’er)
 ========================================================= */
-prevBtn.addEventListener("click", () => {
-  spreadStart = (spreadStart === 2) ? 1 : Math.max(spreadStart - 2, 1);
-  render();
-});
+prevBtn.onclick = () => {
+  if (currentPage > 1) {
+    currentPage--;
+    render("prev");
+  }
+};
 
-nextBtn.addEventListener("click", () => {
-  spreadStart = (spreadStart === 1) ? 2 : Math.min(spreadStart + 2, TOTAL_PAGES);
-  render();
-});
+nextBtn.onclick = () => {
+  if (currentPage < TOTAL_PAGES) {
+    currentPage++;
+    render("next");
+  }
+};
 
 /* =========================================================
    BAŞLAT
