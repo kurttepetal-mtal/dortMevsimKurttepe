@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 
-  <!-- 🔴 ZOOM İÇİN EN KRİTİK SATIR -->
+  <!-- 🔴 ZOOM İÇİN KRİTİK -->
   <meta name="viewport"
         content="width=device-width,
                  initial-scale=1.0,
@@ -12,15 +12,12 @@
                  user-scalable=yes">
 
   <title>Dört Mevsim Kurttepe</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div id="app" class="stage">
-
     <div id="book"></div>
-
   </div>
 
   <!-- ALT KONTROLLER -->
@@ -30,8 +27,13 @@
     <button id="nextBtn">▶</button>
   </div>
 
-  <!-- JS -->
-  <script src="script.js"></script>
+  <!-- 🔍 ZOOM BUTONLARI -->
+  <div class="zoom-controls">
+    <button id="zoomOut">−</button>
+    <span id="zoomLevel">100%</span>
+    <button id="zoomIn">+</button>
+  </div>
 
+  <script src="script.js"></script>
 </body>
 </html>
