@@ -19,7 +19,7 @@ let currentPage = 1;
 let zoom = 1;
 
 /* =========================================================
-   CİHAZ (STABİL)
+   CİHAZ
 ========================================================= */
 function isMobile() {
   return window.matchMedia("(max-width: 768px)").matches;
@@ -31,11 +31,9 @@ function isMobile() {
 function preloadPage(pageNo) {
   if (!pageNo || pageNo < 1 || pageNo > TOTAL_PAGES) return;
 
-  // JPG preload
   const img = new Image();
   img.src = `pages/${pageNo}.jpg`;
 
-  // Video preload (sadece metadata)
   if (videoMap[pageNo]) {
     const v = document.createElement("video");
     v.src = videoMap[pageNo];
@@ -46,9 +44,13 @@ function preloadPage(pageNo) {
 /* =========================================================
    SAYFA OLUŞTURMA
 ========================================================= */
-function makePage(type, pageNo) {
+function makePage(type, pageNo, addFade = false) {
   const page = document.createElement("div");
   page.className = `page ${type}`;
+
+  if (addFade) {
+    page.classList.add("mobile-fade");
+  }
 
   if (!pageNo || pageNo < 1 || pageNo > TOTAL_PAGES) {
     page.classList.add("blank");
@@ -60,7 +62,6 @@ function makePage(type, pageNo) {
   img.src = `pages/${pageNo}.jpg`;
   img.decoding = "async";
   img.loading = "eager";
-  img.onerror = () => console.error(`[Flipbook] Eksik görsel: pages/${pageNo}.jpg`);
   page.appendChild(img);
 
   if (videoMap[pageNo]) {
@@ -68,12 +69,11 @@ function makePage(type, pageNo) {
 
     const video = document.createElement("video");
     video.src = videoMap[pageNo];
-    video.muted = true;          // mobil autoplay güvenliği (overlay tıklanınca açıyoruz)
+    video.muted = true;
     video.loop = true;
     video.playsInline = true;
     video.controls = true;
     video.preload = "metadata";
-    video.onerror = () => console.error(`[Flipbook] Eksik video: ${videoMap[pageNo]}`);
     page.appendChild(video);
 
     const overlay = document.createElement("div");
@@ -91,26 +91,18 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   BUTON DURUMLARI
+   BUTON DURUMU
 ========================================================= */
 function updateButtons() {
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
 
-  if (!prevBtn || !nextBtn) return;
-
-  prevBtn.disabled = (currentPage <= 1);
-
-  if (isMobile()) {
-    nextBtn.disabled = (currentPage >= TOTAL_PAGES);
-  } else {
-    // masaüstünde 1'den sonra +2 ilerliyoruz; son spread için güvenli kilit:
-    nextBtn.disabled = (currentPage >= TOTAL_PAGES);
-  }
+  prevBtn.disabled = currentPage <= 1;
+  nextBtn.disabled = currentPage >= TOTAL_PAGES;
 }
 
 /* =========================================================
-   RENDER (KİLİTLİ YERLEŞİM)
+   RENDER
 ========================================================= */
 function render() {
   const book = document.getElementById("book");
@@ -119,32 +111,32 @@ function render() {
 
   book.innerHTML = "";
 
-  /* ================= MOBİL (TEK TEK) ================= */
+  /* ================= MOBİL ================= */
   if (isMobile()) {
-    book.appendChild(makePage("single", currentPage));
-    if (pageLabel) pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
+    // 🔴 Fade sadece kapaktan SONRA
+    const addFade = currentPage > 1;
 
-    // preload: 1 sayfa sonrası
+    book.appendChild(
+      makePage("single", currentPage, addFade)
+    );
+
+    pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
+
     preloadPage(currentPage + 1);
-
     updateButtons();
     return;
   }
 
-  /* ================= MASAÜSTÜ (KAPAK SAĞDA, SONRA ÇİFT) ================= */
+  /* ================= MASAÜSTÜ (KİLİTLİ) ================= */
   let left = null;
   let right = null;
 
-  // Kapak: sağda 1
   if (currentPage === 1) {
-    left = null;
     right = 1;
   } else if (currentPage % 2 === 0) {
-    // çift -> solda
     left = currentPage;
     right = currentPage + 1;
   } else {
-    // tek -> sağda
     left = currentPage - 1;
     right = currentPage;
   }
@@ -152,35 +144,23 @@ function render() {
   book.appendChild(makePage("left", left));
   book.appendChild(makePage("right", right));
 
-  if (pageLabel) {
-    pageLabel.textContent = left
-      ? `${left}-${right} / ${TOTAL_PAGES}`
-      : `1 / ${TOTAL_PAGES}`;
-  }
+  pageLabel.textContent = left
+    ? `${left}-${right} / ${TOTAL_PAGES}`
+    : `1 / ${TOTAL_PAGES}`;
 
-  // preload: bir sonraki spread (+2/+3) ve sağ/sol sayfalar
-  if (currentPage === 1) {
-    preloadPage(2);
-    preloadPage(3);
-  } else {
-    preloadPage(currentPage + 2);
-    preloadPage(currentPage + 3);
-  }
-  preloadPage(left);
-  preloadPage(right);
-
+  preloadPage(currentPage + 2);
+  preloadPage(currentPage + 3);
   updateButtons();
 }
 
 /* =========================================================
-   SAYFA GEÇİŞ (KİLİTLİ)
+   SAYFA GEÇİŞ
 ========================================================= */
 function nextPage() {
   if (isMobile()) {
     if (currentPage < TOTAL_PAGES) currentPage++;
   } else {
-    currentPage = (currentPage === 1) ? 2 : (currentPage + 2);
-    if (currentPage > TOTAL_PAGES) currentPage = TOTAL_PAGES;
+    currentPage = currentPage === 1 ? 2 : currentPage + 2;
   }
   render();
 }
@@ -189,65 +169,41 @@ function prevPage() {
   if (isMobile()) {
     if (currentPage > 1) currentPage--;
   } else {
-    currentPage = (currentPage === 2) ? 1 : (currentPage - 2);
-    if (currentPage < 1) currentPage = 1;
+    currentPage = currentPage === 2 ? 1 : currentPage - 2;
   }
   render();
 }
 
 /* =========================================================
-   ZOOM (KİLİTLİ)
+   ZOOM
 ========================================================= */
 function applyZoom() {
   const book = document.getElementById("book");
-  const zoomLevel = document.getElementById("zoomLevel");
-  if (!book) return;
-
+  const zoomLabel = document.getElementById("zoomLevel");
   book.style.transform = `scale(${zoom})`;
-  if (zoomLevel) zoomLevel.textContent = `${Math.round(zoom * 100)}%`;
+  zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
 }
 
 function zoomIn() {
-  zoom = Math.min(2.0, Math.round((zoom + 0.1) * 10) / 10);
+  zoom = Math.min(2, zoom + 0.1);
   applyZoom();
 }
 
 function zoomOut() {
-  zoom = Math.max(0.6, Math.round((zoom - 0.1) * 10) / 10);
+  zoom = Math.max(0.6, zoom - 0.1);
   applyZoom();
-}
-
-/* =========================================================
-   RESIZE (STABİL)
-========================================================= */
-let resizeTimer = null;
-function onResize() {
-  if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    render();
-    resizeTimer = null;
-  }, 180);
 }
 
 /* =========================================================
    BAŞLAT
 ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const zoomInBtn = document.getElementById("zoomIn");
-  const zoomOutBtn = document.getElementById("zoomOut");
+  document.getElementById("prevBtn").onclick = prevPage;
+  document.getElementById("nextBtn").onclick = nextPage;
+  document.getElementById("zoomIn").onclick = zoomIn;
+  document.getElementById("zoomOut").onclick = zoomOut;
 
-  if (prevBtn) prevBtn.onclick = prevPage;
-  if (nextBtn) nextBtn.onclick = nextPage;
-
-  if (zoomInBtn) zoomInBtn.onclick = zoomIn;
-  if (zoomOutBtn) zoomOutBtn.onclick = zoomOut;
-
-  // ilk zoom
   applyZoom();
-
-  // açılış hızlandırma
   preloadPage(1);
   preloadPage(2);
   preloadPage(3);
@@ -255,4 +211,4 @@ document.addEventListener("DOMContentLoaded", () => {
   render();
 });
 
-window.addEventListener("resize", onResize);
+window.addEventListener("resize", render);
