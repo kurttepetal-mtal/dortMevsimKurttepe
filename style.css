@@ -29,7 +29,6 @@ html, body {
   background: #fff;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-
   display: flex;
   transform-origin: center center;
 }
@@ -55,7 +54,7 @@ html, body {
   width: 100%;
 }
 
-/* Görsel */
+/* ================= GÖRSEL ================= */
 .page img.bg {
   width: 100%;
   height: 100%;
@@ -63,7 +62,7 @@ html, body {
   display: block;
 }
 
-/* Video */
+/* ================= VIDEO ================= */
 .page.video-page video {
   position: absolute;
   inset: 0;
@@ -73,7 +72,7 @@ html, body {
   z-index: 5;
 }
 
-/* Play overlay */
+/* ================= PLAY OVERLAY ================= */
 .video-play-overlay {
   position: absolute;
   inset: 0;
@@ -124,6 +123,7 @@ html, body {
 
 /* ================= MOBİL ================= */
 @media (max-width: 768px) {
+
   #book {
     width: 100%;
     height: auto;
@@ -136,7 +136,7 @@ html, body {
     height: auto;
   }
 
-  /* ===== MOBİL CROSS-SLIDE (TEK VE NET) ===== */
+  /* ===== MOBİL CROSS-SLIDE ===== */
   .mobile-slide-wrapper {
     position: relative;
     width: 100%;
@@ -180,5 +180,29 @@ html, body {
       transform: translateX(0);
       opacity: 1;
     }
+  }
+
+  /* =========================================================
+     🔴 KAPAK SAYFASI (1.jpg) – KIRPILMA ÖNLEME
+     SADECE KAPAKTA DEVREYE GİRER
+  ========================================================= */
+  #book:has(.page.single img[src$="/1.jpg"]),
+  #book:has(.page.single img[src$="1.jpg"]) {
+    height: auto !important;
+    overflow: visible;
+  }
+
+  #book:has(.page.single img[src$="/1.jpg"]) .page.single,
+  #book:has(.page.single img[src$="1.jpg"]) .page.single {
+    height: auto;
+    overflow: visible;
+  }
+
+  #book:has(.page.single img[src$="/1.jpg"]) img.bg,
+  #book:has(.page.single img[src$="1.jpg"]) img.bg {
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    object-position: center bottom; /* QR garanti */
   }
 }
