@@ -3,7 +3,6 @@
 ========================================================= */
 const TOTAL_PAGES = 47;
 
-// Video olan sayfalar
 const videoMap = {
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
@@ -16,9 +15,9 @@ const videoMap = {
 /* =========================================================
    ELEMENTLER
 ========================================================= */
-const bookEl   = document.getElementById("book");
-const prevBtn  = document.getElementById("prevBtn");
-const nextBtn  = document.getElementById("nextBtn");
+const bookEl    = document.getElementById("book");
+const prevBtn   = document.getElementById("prevBtn");
+const nextBtn   = document.getElementById("nextBtn");
 const pageLabel = document.getElementById("pageLabel");
 const zoomLevel = document.getElementById("zoomLevel");
 const turnSound = document.getElementById("turnSound");
@@ -26,7 +25,7 @@ const turnSound = document.getElementById("turnSound");
 /* =========================================================
    DURUMLAR
 ========================================================= */
-let spreadStart = 1;   // kitap mantığında "mevcut sol sayfa"
+let spreadStart = 1;
 let zoom = 1;
 let unlocked = false;
 
@@ -51,9 +50,15 @@ document.addEventListener("touchstart", unlockMedia, { once: true });
 /* =========================================================
    SAYFA OLUŞTURMA
 ========================================================= */
-function makePage(side, pageNo) {
+function makePage(side, pageNo, empty = false) {
   const page = document.createElement("div");
   page.className = `page ${side}`;
+
+  if (empty) {
+    page.style.background = "transparent";
+    return page;
+  }
+
   page.dataset.pageNo = pageNo;
 
   const img = document.createElement("img");
@@ -93,7 +98,7 @@ function playVideos() {
 }
 
 /* =========================================================
-   RENDER (ANA MANTIK)
+   RENDER
 ========================================================= */
 function render() {
   stopVideos();
@@ -102,17 +107,19 @@ function render() {
   const isCover = (spreadStart === 1);
 
   if (isCover) {
-    // 🔴 KAPAK: SAĞ SAYFA
-    const right = makePage("right", 1);
-    right.classList.add("single");
-    bookEl.appendChild(right);
+    // 🔴 BOŞ SOL SAYFA (placeholder)
+    const emptyLeft = makePage("left", null, true);
+    bookEl.appendChild(emptyLeft);
+
+    // 🔴 KAPAK SAĞDA
+    const cover = makePage("right", 1);
+    bookEl.appendChild(cover);
 
     pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
     prevBtn.disabled = true;
     nextBtn.disabled = false;
 
   } else {
-    // 🔴 NORMAL ÇİFT SAYFA
     const leftPageNo  = spreadStart;
     const rightPageNo = spreadStart + 1;
 
@@ -129,7 +136,7 @@ function render() {
     nextBtn.disabled = (rightPageNo >= TOTAL_PAGES);
   }
 
-  setTimeout(playVideos, 50);
+  setTimeout(playVideos, 60);
 }
 
 /* =========================================================
@@ -146,7 +153,7 @@ function nextPage() {
   playTurnSound();
 
   if (spreadStart === 1) {
-    spreadStart = 2;       // kapaktan içeri
+    spreadStart = 2;
   } else if (spreadStart + 2 <= TOTAL_PAGES) {
     spreadStart += 2;
   }
@@ -158,7 +165,7 @@ function prevPage() {
   playTurnSound();
 
   if (spreadStart === 2) {
-    spreadStart = 1;       // tekrar kapağa
+    spreadStart = 1;
   } else if (spreadStart > 2) {
     spreadStart -= 2;
   }
