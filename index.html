@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+
+  <!-- 🔴 ZOOM İÇİN EN KRİTİK SATIR -->
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 minimum-scale=1.0,
+                 maximum-scale=5.0,
+                 user-scalable=yes">
+
   <title>Dört Mevsim Kurttepe</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="stage">
-  <div id="book" class="stf__parent"></div>
-</div>
+  <div id="app" class="stage">
 
-<div id="controls">
-  <button id="prevBtn">◀</button>
-  <span id="pageIndicator">1 / 46</span>
-  <button id="nextBtn">▶</button>
-</div>
+    <div id="book"></div>
 
-<div id="hint">Ses ve videolar için bir kez dokunun/tıklayın.</div>
+  </div>
 
-<!-- PageFlip kütüphanesi (ÖNCE) -->
-<script src="page-flip.browser.js"></script>
+  <!-- ALT KONTROLLER -->
+  <div class="controls">
+    <button id="prevBtn">◀</button>
+    <span id="pageLabel">1 / 47</span>
+    <button id="nextBtn">▶</button>
+  </div>
 
-<!-- Senin kodların (SONRA) -->
-<script src="script.js"></script>
+  <!-- JS -->
+  <script src="script.js"></script>
+
 </body>
 </html>
