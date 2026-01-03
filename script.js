@@ -2,7 +2,6 @@
    AYARLAR
 ========================================================= */
 const TOTAL_PAGES = 47;
-const CHUNK_SIZE = 10;
 
 const videoMap = {
   17: "videos/v17.mp4",
@@ -21,10 +20,6 @@ const prevBtn   = document.getElementById("prevBtn");
 const nextBtn   = document.getElementById("nextBtn");
 const pageLabel = document.getElementById("pageLabel");
 
-const zoomInBtn  = document.getElementById("zoomIn");
-const zoomOutBtn = document.getElementById("zoomOut");
-const zoomLabel  = document.getElementById("zoomLevel");
-
 /* =========================================================
    YARDIMCI
 ========================================================= */
@@ -33,34 +28,9 @@ function isMobile() {
 }
 
 /* =========================================================
-   ZOOM (AUTO-FIT)
-========================================================= */
-let zoom = 1;
-const ZOOM_MIN = 0.6;
-const ZOOM_MAX = 3;
-const ZOOM_STEP = 0.2;
-
-function calculateInitialZoom() {
-  const w = window.innerWidth;
-  return w < 900 ? Math.max(ZOOM_MIN, w / 900) : 1;
-}
-
-function applyZoom() {
-  bookEl.style.transform = `scale(${zoom})`;
-  zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
-}
-
-zoom = calculateInitialZoom();
-applyZoom();
-
-zoomInBtn.onclick  = () => { zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP); applyZoom(); };
-zoomOutBtn.onclick = () => { zoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP); applyZoom(); };
-
-/* =========================================================
    DURUM
 ========================================================= */
 let currentPage = 1;
-let loadedUntil = CHUNK_SIZE;
 
 /* =========================================================
    SAYFA OLUŞTURMA
@@ -70,10 +40,14 @@ function createPage(pageNo, side) {
   page.className = `page ${side}`;
   page.dataset.pageNo = pageNo;
 
+  if (pageNo === 0) {
+    // Boş sol sayfa (kapak için)
+    return page;
+  }
+
   const img = document.createElement("img");
   img.className = "bg";
   img.src = `pages/${pageNo}.jpg`;
-  img.loading = "lazy";
   page.appendChild(img);
 
   if (videoMap[pageNo]) {
@@ -90,14 +64,6 @@ function createPage(pageNo, side) {
 }
 
 /* =========================================================
-   KADEMELİ YÜKLEME
-========================================================= */
-function ensureLoaded(pageNo) {
-  if (pageNo <= loadedUntil) return;
-  loadedUntil = Math.min(loadedUntil + CHUNK_SIZE, TOTAL_PAGES);
-}
-
-/* =========================================================
    RENDER
 ========================================================= */
 function render() {
@@ -107,10 +73,7 @@ function render() {
      MOBİL: TEK SAYFA
   ======================= */
   if (isMobile()) {
-    ensureLoaded(currentPage);
-
     bookEl.appendChild(createPage(currentPage, "single"));
-
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= TOTAL_PAGES;
@@ -121,18 +84,18 @@ function render() {
      MASAÜSTÜ
   ======================= */
 
-  // KAPAK (SAĞDA)
+  // KAPAK → SAĞDA
   if (currentPage === 1) {
-    bookEl.appendChild(createPage(1, "right"));
+    bookEl.appendChild(createPage(0, "left"));   // boş sol
+    bookEl.appendChild(createPage(1, "right"));  // kapak sağda
+
     pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
     prevBtn.disabled = true;
     nextBtn.disabled = false;
     return;
   }
 
-  // ÇİFT SAYFA
-  ensureLoaded(currentPage + 1);
-
+  // NORMAL ÇİFT SAYFA
   bookEl.appendChild(createPage(currentPage, "left"));
 
   if (currentPage + 1 <= TOTAL_PAGES) {
@@ -166,15 +129,6 @@ nextBtn.onclick = () => {
   }
   render();
 };
-
-/* =========================================================
-   EKRAN DEĞİŞİNCE
-========================================================= */
-window.addEventListener("resize", () => {
-  zoom = calculateInitialZoom();
-  applyZoom();
-  render();
-});
 
 /* =========================================================
    BAŞLAT
