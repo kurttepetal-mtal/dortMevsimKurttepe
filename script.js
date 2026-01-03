@@ -19,14 +19,12 @@ const bookEl    = document.getElementById("book");
 const prevBtn   = document.getElementById("prevBtn");
 const nextBtn   = document.getElementById("nextBtn");
 const pageLabel = document.getElementById("pageLabel");
-const zoomLevel = document.getElementById("zoomLevel");
 const turnSound = document.getElementById("turnSound");
 
 /* =========================================================
    DURUMLAR
 ========================================================= */
 let currentPage = 1;
-let zoom = 1;
 
 /* =========================================================
    CİHAZ
@@ -64,7 +62,6 @@ function makePage(position, pageNo) {
     video.controls = true;
     page.appendChild(video);
 
-    // Masaüstü için garanti play
     const playOverlay = document.createElement("div");
     playOverlay.className = "video-play-overlay";
     playOverlay.innerHTML = "▶";
@@ -80,14 +77,16 @@ function makePage(position, pageNo) {
 }
 
 /* =========================================================
-   RENDER (KİLİTLİ MANTIK)
+   RENDER (KAPAK + SOL/SAĞ DOĞRU)
 ========================================================= */
 function render() {
   bookEl.innerHTML = "";
 
   /* ================= MOBİL ================= */
   if (isMobile()) {
+    // Kapak DAHİL – her zaman tek sayfa
     bookEl.appendChild(makePage("single", currentPage));
+
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= TOTAL_PAGES;
@@ -95,27 +94,33 @@ function render() {
   }
 
   /* ================= MASAÜSTÜ ================= */
+
+  // 🔴 KAPAK (1) – SAĞDA TEK
   if (currentPage === 1) {
-    // Kapak: sol boş, sağ kapak
     bookEl.appendChild(makePage("left", null));
     bookEl.appendChild(makePage("right", 1));
+
     pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
     prevBtn.disabled = true;
     nextBtn.disabled = false;
     return;
   }
 
-  // currentPage her zaman SOL sayfa olacak şekilde ayarlanır
-  let leftPage = currentPage;
-  let rightPage = currentPage + 1;
+  // 🔴 NORMAL SPREAD
+  let leftPage, rightPage;
 
-  // Eğer currentPage TEK ise, bir geri al (çift yap)
-  if (leftPage % 2 !== 0) {
-    leftPage -= 1;
-    rightPage = leftPage + 1;
+  if (currentPage % 2 === 0) {
+    // çift → sol
+    leftPage = currentPage;
+    rightPage = currentPage + 1;
+  } else {
+    // tek → sağ
+    leftPage = currentPage - 1;
+    rightPage = currentPage;
   }
 
   bookEl.appendChild(makePage("left", leftPage));
+
   if (rightPage <= TOTAL_PAGES) {
     bookEl.appendChild(makePage("right", rightPage));
   }
@@ -139,7 +144,7 @@ function nextPage() {
   playTurnSound();
 
   if (isMobile()) {
-    if (currentPage < TOTAL_PAGES) currentPage += 1;
+    if (currentPage < TOTAL_PAGES) currentPage++;
   } else {
     if (currentPage === 1) currentPage = 2;
     else currentPage += 2;
@@ -152,7 +157,7 @@ function prevPage() {
   playTurnSound();
 
   if (isMobile()) {
-    if (currentPage > 1) currentPage -= 1;
+    if (currentPage > 1) currentPage--;
   } else {
     if (currentPage === 2) currentPage = 1;
     else currentPage -= 2;
@@ -163,21 +168,6 @@ function prevPage() {
 
 prevBtn.onclick = prevPage;
 nextBtn.onclick = nextPage;
-
-/* =========================================================
-   ZOOM (MASAÜSTÜ)
-========================================================= */
-document.getElementById("zoomIn").onclick = () => {
-  zoom = Math.min(2, zoom + 0.1);
-  bookEl.style.transform = `scale(${zoom})`;
-  zoomLevel.textContent = `${Math.round(zoom * 100)}%`;
-};
-
-document.getElementById("zoomOut").onclick = () => {
-  zoom = Math.max(0.6, zoom - 0.1);
-  bookEl.style.transform = `scale(${zoom})`;
-  zoomLevel.textContent = `${Math.round(zoom * 100)}%`;
-};
 
 window.addEventListener("resize", render);
 render();
