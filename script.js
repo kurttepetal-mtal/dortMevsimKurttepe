@@ -17,6 +17,7 @@ const videoMap = {
 ========================================================= */
 let currentPage = 1;
 let isAnimating = false;
+let mobileHeightLocked = false;
 
 /* =========================================================
    CİHAZ
@@ -26,14 +27,17 @@ function isMobile() {
 }
 
 /* =========================================================
-   MOBİL KİTAP YÜKSEKLİĞİ KİLİDİ
+   MOBİL KİTAP YÜKSEKLİĞİ (TEK SEFER)
 ========================================================= */
-function lockMobileBookHeight() {
+function lockMobileBookHeightOnce() {
+  if (!isMobile() || mobileHeightLocked) return;
+
   const book = document.getElementById("book");
-  if (!book || !isMobile()) return;
+  if (!book) return;
 
   const width = book.offsetWidth;
   book.style.height = Math.round(width * 1.35) + "px";
+  mobileHeightLocked = true;
 }
 
 /* =========================================================
@@ -79,10 +83,11 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE
+   MOBİL CROSS-SLIDE (STABİL)
 ========================================================= */
 function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
+
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -118,7 +123,6 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
 ========================================================= */
 function render(withAnimation = false) {
 
-  // 🔴 KRİTİK KORUMA (GÖZ KIRPMAYI BİTİRİR)
   if (isMobile() && isAnimating) return;
 
   const book = document.getElementById("book");
@@ -126,7 +130,7 @@ function render(withAnimation = false) {
   if (!book) return;
 
   if (isMobile()) {
-    lockMobileBookHeight();
+    lockMobileBookHeightOnce();
 
     const newPage = makePage("single", currentPage);
 
@@ -205,4 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   render(false);
 });
 
-window.addEventListener("resize", () => render(false));
+/* 🔴 MOBİLDE resize → render YOK (göz kırpma biter) */
+window.addEventListener("resize", () => {
+  if (!isMobile()) render(false);
+});
