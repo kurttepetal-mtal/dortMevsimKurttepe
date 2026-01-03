@@ -68,14 +68,12 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (EŞ ZAMANLI) RENDER
-   - Eski sayfa çıkarken yeni sayfa aynı anda girer
-   - Yerleşime/düğmelere/masaüstüne dokunmaz
+   MOBİL CROSS-SLIDE (DÜZELTİLMİŞ)
 ========================================================= */
-function renderMobileWithCrossSlide(bookEl, newPageEl, durationMs = 320) {
+function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
 
-  // İlk açılışta eski sayfa yoksa direkt bas
+  // İlk açılış
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -87,23 +85,24 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, durationMs = 320) {
   const wrapper = document.createElement("div");
   wrapper.className = "mobile-slide-wrapper";
 
-  // Eski sayfa: çıkış animasyonu
-  oldPage.classList.add("mobile-slide-old");
-  wrapper.appendChild(oldPage);
+  /* 🔴 KRİTİK DÜZELTME:
+     Wrapper’a eski sayfanın yüksekliğini kilitle */
+  wrapper.style.height = oldPage.offsetHeight + "px";
 
-  // Yeni sayfa: giriş animasyonu
+  oldPage.classList.add("mobile-slide-old");
   newPageEl.classList.add("mobile-slide-new");
+
+  wrapper.appendChild(oldPage);
   wrapper.appendChild(newPageEl);
 
   bookEl.innerHTML = "";
   bookEl.appendChild(wrapper);
 
-  // Animasyon bitince sadece yeni sayfa kalsın
-  window.setTimeout(() => {
+  setTimeout(() => {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
     isAnimating = false;
-  }, durationMs + 30);
+  }, duration + 40);
 }
 
 /* =========================================================
@@ -120,7 +119,7 @@ function render(withAnimation = false) {
     const newPage = makePage("single", currentPage);
 
     if (withAnimation) {
-      renderMobileWithCrossSlide(book, newPage, 320);
+      renderMobileWithCrossSlide(book, newPage);
     } else {
       book.innerHTML = "";
       book.appendChild(newPage);
@@ -130,7 +129,7 @@ function render(withAnimation = false) {
     return;
   }
 
-  /* ========== MASAÜSTÜ (KİLİTLİ / DEĞİŞMEDİ) ========== */
+  /* ========== MASAÜSTÜ (KİLİTLİ) ========== */
   book.innerHTML = "";
 
   let left = null, right = null;
@@ -188,12 +187,8 @@ function prevPage() {
    BAŞLAT
 ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-
-  if (prevBtn) prevBtn.onclick = prevPage;
-  if (nextBtn) nextBtn.onclick = nextPage;
-
+  document.getElementById("prevBtn").onclick = prevPage;
+  document.getElementById("nextBtn").onclick = nextPage;
   render(false);
 });
 
