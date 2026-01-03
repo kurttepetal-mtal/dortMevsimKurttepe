@@ -1,29 +1,39 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+
+  <!-- 🔴 ZOOM İÇİN KRİTİK -->
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 minimum-scale=1.0,
+                 maximum-scale=5.0,
+                 user-scalable=yes">
+
   <title>Dört Mevsim Kurttepe</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="stage">
-  <div id="book" class="stf__parent"></div>
-</div>
+  <div id="app" class="stage">
+    <div id="book"></div>
+  </div>
 
-<div id="controls">
-  <button id="prevBtn">◀</button>
-  <span id="pageIndicator">1 / 46</span>
-  <button id="nextBtn">▶</button>
-</div>
+  <!-- ALT KONTROLLER -->
+  <div class="controls">
+    <button id="prevBtn">◀</button>
+    <span id="pageLabel">1 / 47</span>
+    <button id="nextBtn">▶</button>
+  </div>
 
-<div id="hint">Ses ve videolar için bir kez dokunun/tıklayın.</div>
+  <!-- 🔍 ZOOM BUTONLARI -->
+  <div class="zoom-controls">
+    <button id="zoomOut">−</button>
+    <span id="zoomLevel">100%</span>
+    <button id="zoomIn">+</button>
+  </div>
 
-<!-- PageFlip kütüphanesi (ÖNCE) -->
-<script src="page-flip.browser.js"></script>
-
-<!-- Senin kodların (SONRA) -->
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
