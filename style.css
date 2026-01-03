@@ -1,5 +1,5 @@
 /* =========================================================
-   GENEL – KİLİTLİ
+   GENEL
 ========================================================= */
 * {
   box-sizing: border-box;
@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================================
-   KİTAP KAPSAYICI
+   UYGULAMA
 ========================================================= */
 #app {
   min-height: 100vh;
@@ -27,25 +27,26 @@ body {
   flex-direction: column;
 }
 
+/* =========================================================
+   KİTAP KAPSAYICI
+========================================================= */
 #book-wrapper {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  overflow: hidden;
 }
 
+/* =========================================================
+   KİTAP – MASAÜSTÜ
+========================================================= */
 #book {
   position: relative;
   width: 900px;
   height: 600px;
   background: #ffffff;
   box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-
-  max-width: 100%;
-  max-height: 100%;
-
   transform-origin: center center;
 }
 
@@ -56,8 +57,8 @@ body {
   position: absolute;
   top: 0;
   height: 100%;
-  overflow: hidden;
   background: #ffffff;
+  overflow: hidden;
 }
 
 .page.left {
@@ -75,6 +76,7 @@ body {
   width: 100%;
 }
 
+/* İçerik */
 .page img.bg,
 .page video {
   width: 100%;
@@ -85,15 +87,14 @@ body {
 }
 
 /* =========================================================
-   KONTROLLER – ARTIK TRANSFORM'DAN BAĞIMSIZ
+   ALT KONTROLLER (ORTA – SABİT)
 ========================================================= */
 #controls {
   position: fixed;
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-
-  z-index: 999999;
+  z-index: 99999;
 
   display: flex;
   align-items: center;
@@ -112,34 +113,48 @@ body {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  cursor: pointer;
   font-size: 16px;
+  cursor: pointer;
 }
 
-#controls button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-#pageLabel,
-#zoomLevel {
+#controls span {
+  font-size: 14px;
   min-width: 70px;
   text-align: center;
-  font-size: 14px;
-  color: #333;
 }
 
 /* =========================================================
-   MOBİL
+   📱 MOBİL – TAM EKRAN DİKEY OKUMA
 ========================================================= */
 @media (max-width: 768px) {
+
+  #book-wrapper {
+    align-items: flex-start;
+  }
+
+  /* 🔴 EN KRİTİK DÜZELTME */
   #book {
     width: 100%;
     height: auto;
-    aspect-ratio: 3 / 2;
+    box-shadow: none;
   }
 
   .page {
+    position: relative;
     width: 100%;
+    height: auto;
+  }
+
+  .page.left,
+  .page.right {
+    width: 100%;
+    position: relative;
+  }
+
+  .page img.bg,
+  .page video {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
   }
 }
