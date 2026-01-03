@@ -136,11 +136,32 @@ html, body {
     height: auto;
   }
 
+  /* 🔴 MOBİL TEKLİ SAYFALAR – KIRPILMA YOK */
+  .page.single {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .page.single img.bg {
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    display: block;
+  }
+
+  .page.single.video-page video {
+    position: relative;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+  }
+
   /* ===== MOBİL CROSS-SLIDE ===== */
   .mobile-slide-wrapper {
     position: relative;
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .mobile-slide-old,
@@ -183,8 +204,7 @@ html, body {
   }
 
   /* =========================================================
-     🔴 KAPAK SAYFASI (1.jpg) – KIRPILMA ÖNLEME
-     SADECE KAPAKTA DEVREYE GİRER
+     KAPAK SAYFASI (1.jpg) – QR KOD GARANTİ
   ========================================================= */
   #book:has(.page.single img[src$="/1.jpg"]),
   #book:has(.page.single img[src$="1.jpg"]) {
@@ -192,17 +212,8 @@ html, body {
     overflow: visible;
   }
 
-  #book:has(.page.single img[src$="/1.jpg"]) .page.single,
-  #book:has(.page.single img[src$="1.jpg"]) .page.single {
-    height: auto;
-    overflow: visible;
-  }
-
   #book:has(.page.single img[src$="/1.jpg"]) img.bg,
   #book:has(.page.single img[src$="1.jpg"]) img.bg {
-    height: auto;
-    max-height: none;
-    object-fit: contain;
-    object-position: center bottom; /* QR garanti */
+    object-position: center bottom;
   }
 }
