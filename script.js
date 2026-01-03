@@ -68,12 +68,12 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (KESİN DÜZELTME)
+   MOBİL CROSS-SLIDE (KOPYA İLE)
 ========================================================= */
 function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
 
-  // İlk render
+  // İlk açılış
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -82,17 +82,18 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
 
   isAnimating = true;
 
+  // 🔴 ESKİ SAYFANIN KOPYASI
+  const oldClone = oldPage.cloneNode(true);
+
   const wrapper = document.createElement("div");
   wrapper.className = "mobile-slide-wrapper";
-
-  // 🔴 KRİTİK SATIR (SORUNU ÇÖZEN)
   wrapper.style.height =
     oldPage.offsetHeight || bookEl.offsetHeight || "auto";
 
-  oldPage.classList.add("mobile-slide-old");
+  oldClone.classList.add("mobile-slide-old");
   newPageEl.classList.add("mobile-slide-new");
 
-  wrapper.appendChild(oldPage);
+  wrapper.appendChild(oldClone);
   wrapper.appendChild(newPageEl);
 
   bookEl.innerHTML = "";
