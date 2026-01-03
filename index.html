@@ -2,38 +2,37 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-
-  <!-- 🔴 ZOOM İÇİN KRİTİK -->
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 minimum-scale=1.0,
-                 maximum-scale=5.0,
-                 user-scalable=yes">
-
   <title>Dört Mevsim Kurttepe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="app" class="stage">
-    <div id="book"></div>
+  <!-- Dergi Alanı -->
+  <div id="app">
+
+    <div id="book-wrapper">
+      <div id="book"></div>
+    </div>
+
+    <!-- Alt Kontroller -->
+    <div id="controls">
+      <button id="prevBtn">◀</button>
+      <span id="pageLabel">1 / 47</span>
+      <button id="nextBtn">▶</button>
+
+      <button id="zoomOut">−</button>
+      <span id="zoomLevel">100%</span>
+      <button id="zoomIn">+</button>
+    </div>
+
   </div>
 
-  <!-- ALT KONTROLLER -->
-  <div class="controls">
-    <button id="prevBtn">◀</button>
-    <span id="pageLabel">1 / 47</span>
-    <button id="nextBtn">▶</button>
-  </div>
+  <!-- 🔊 SAYFA ÇEVİRME SESİ -->
+  <audio id="turnSound" src="audio/page-turn.mp3" preload="auto"></audio>
 
-  <!-- 🔍 ZOOM BUTONLARI -->
-  <div class="zoom-controls">
-    <button id="zoomOut">−</button>
-    <span id="zoomLevel">100%</span>
-    <button id="zoomIn">+</button>
-  </div>
-
-  <script src="script.js"></script>
+  <!-- Script -->
+  <script src="script.js?v=7"></script>
 </body>
 </html>
