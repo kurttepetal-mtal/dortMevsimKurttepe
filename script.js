@@ -68,6 +68,45 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
+   MOBİL CROSS-SLIDE (EŞ ZAMANLI) RENDER
+   - Eski sayfa çıkarken yeni sayfa aynı anda girer
+   - Yerleşime/düğmelere/masaüstüne dokunmaz
+========================================================= */
+function renderMobileWithCrossSlide(bookEl, newPageEl, durationMs = 320) {
+  const oldPage = bookEl.querySelector(".page");
+
+  // İlk açılışta eski sayfa yoksa direkt bas
+  if (!oldPage) {
+    bookEl.innerHTML = "";
+    bookEl.appendChild(newPageEl);
+    return;
+  }
+
+  isAnimating = true;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "mobile-slide-wrapper";
+
+  // Eski sayfa: çıkış animasyonu
+  oldPage.classList.add("mobile-slide-old");
+  wrapper.appendChild(oldPage);
+
+  // Yeni sayfa: giriş animasyonu
+  newPageEl.classList.add("mobile-slide-new");
+  wrapper.appendChild(newPageEl);
+
+  bookEl.innerHTML = "";
+  bookEl.appendChild(wrapper);
+
+  // Animasyon bitince sadece yeni sayfa kalsın
+  window.setTimeout(() => {
+    bookEl.innerHTML = "";
+    bookEl.appendChild(newPageEl);
+    isAnimating = false;
+  }, durationMs + 30);
+}
+
+/* =========================================================
    RENDER
 ========================================================= */
 function render(withAnimation = false) {
@@ -76,31 +115,22 @@ function render(withAnimation = false) {
 
   if (!book) return;
 
+  /* ================= MOBİL ================= */
   if (isMobile()) {
-    const oldPage = book.querySelector(".page");
+    const newPage = makePage("single", currentPage);
 
-    if (oldPage && withAnimation) {
-      oldPage.classList.add("mobile-exit");
-      isAnimating = true;
-
-      oldPage.addEventListener("animationend", () => {
-        book.innerHTML = "";
-        const newPage = makePage("single", currentPage);
-        newPage.classList.add("mobile-enter");
-        book.appendChild(newPage);
-        isAnimating = false;
-      }, { once: true });
-
+    if (withAnimation) {
+      renderMobileWithCrossSlide(book, newPage, 320);
     } else {
       book.innerHTML = "";
-      book.appendChild(makePage("single", currentPage));
+      book.appendChild(newPage);
     }
 
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     return;
   }
 
-  /* ========== MASAÜSTÜ (DEĞİŞMEDİ) ========== */
+  /* ========== MASAÜSTÜ (KİLİTLİ / DEĞİŞMEDİ) ========== */
   book.innerHTML = "";
 
   let left = null, right = null;
@@ -136,7 +166,7 @@ function nextPage() {
     }
   } else {
     currentPage = currentPage === 1 ? 2 : currentPage + 2;
-    render();
+    render(false);
   }
 }
 
@@ -150,7 +180,7 @@ function prevPage() {
     }
   } else {
     currentPage = currentPage === 2 ? 1 : currentPage - 2;
-    render();
+    render(false);
   }
 }
 
@@ -158,33 +188,13 @@ function prevPage() {
    BAŞLAT
 ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("prevBtn").onclick = prevPage;
-  document.getElementById("nextBtn").onclick = nextPage;
-  render();
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  if (prevBtn) prevBtn.onclick = prevPage;
+  if (nextBtn) nextBtn.onclick = nextPage;
+
+  render(false);
 });
 
-window.addEventListener("resize", render);
-function renderMobileWithCrossSlide(bookEl, newPageEl) {
-  const oldPage = bookEl.querySelector(".page");
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "mobile-slide-wrapper";
-
-  if (oldPage) {
-    oldPage.classList.add("mobile-slide-old");
-    wrapper.appendChild(oldPage);
-  }
-
-  newPageEl.classList.add("mobile-slide-new");
-  wrapper.appendChild(newPageEl);
-
-  bookEl.innerHTML = "";
-  bookEl.appendChild(wrapper);
-
-  // Animasyon bitince eskiyi kaldır
-  setTimeout(() => {
-    bookEl.innerHTML = "";
-    bookEl.appendChild(newPageEl);
-  }, 350);
-}
-
+window.addEventListener("resize", () => render(false));
