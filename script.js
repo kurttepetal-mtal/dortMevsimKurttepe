@@ -47,7 +47,7 @@ function makePage(type, pageNo) {
 
     const video = document.createElement("video");
     video.src = videoMap[pageNo];
-    video.muted = true;            // mobil autoplay güvenliği
+    video.muted = true;
     video.loop = true;
     video.playsInline = true;
     video.controls = true;
@@ -68,10 +68,12 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (SADECE JPG SAYFALAR)
+   MOBİL CROSS-SLIDE (STABİL)
 ========================================================= */
-function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
+function renderMobileWithCrossSlide(bookEl, newPageEl) {
   const oldPage = bookEl.querySelector(".page");
+
+  // İlk açılış
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -84,7 +86,11 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
 
   const wrapper = document.createElement("div");
   wrapper.className = "mobile-slide-wrapper";
-  wrapper.style.height = oldPage.offsetHeight + "px";
+
+  /* 🔴 KRİTİK:
+     offsetHeight KULLANMIYORUZ
+     Sabit, güvenli bir alan */
+  wrapper.style.minHeight = "60vh";
 
   oldClone.classList.add("mobile-slide-old");
   newPageEl.classList.add("mobile-slide-new");
@@ -99,7 +105,7 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
     isAnimating = false;
-  }, duration);
+  }, 350);
 }
 
 /* =========================================================
@@ -112,21 +118,18 @@ function render(withAnimation = false) {
 
   /* ================= MOBİL ================= */
   if (isMobile()) {
-
     const hasVideo = !!videoMap[currentPage];
     const newPage = makePage("single", currentPage);
 
-    // 🔴 VİDEO VARSA → ANİMASYON YOK
+    // Video sayfalar → animasyonsuz
     if (hasVideo || !withAnimation) {
       book.innerHTML = "";
       book.appendChild(newPage);
       isAnimating = false;
-    } 
-    // 🔴 SADECE JPG → CROSS-SLIDE
-    else {
-      if (!isAnimating) {
-        renderMobileWithCrossSlide(book, newPage);
-      }
+    }
+    // Sadece JPG → cross-slide
+    else if (!isAnimating) {
+      renderMobileWithCrossSlide(book, newPage);
     }
 
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
@@ -197,3 +200,4 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("resize", () => render(false));
+                                                                                                
