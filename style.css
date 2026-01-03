@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================================
-   UYGULAMA
+   KİTAP ALANI
 ========================================================= */
 #app {
   min-height: 100vh;
@@ -27,9 +27,6 @@ body {
   flex-direction: column;
 }
 
-/* =========================================================
-   KİTAP KAPSAYICI
-========================================================= */
 #book-wrapper {
   flex: 1;
   display: flex;
@@ -38,67 +35,90 @@ body {
   width: 100%;
 }
 
-/* =========================================================
-   KİTAP – MASAÜSTÜ
-========================================================= */
 #book {
   position: relative;
   width: 900px;
   height: 600px;
-  background: #ffffff;
+  background: #fff;
   box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-  transform-origin: center center;
 }
 
 /* =========================================================
-   SAYFALAR
+   SAYFA
 ========================================================= */
 .page {
   position: absolute;
   top: 0;
   height: 100%;
-  background: #ffffff;
+  background: #fff;
   overflow: hidden;
 }
 
-.page.left {
-  left: 0;
-  width: 50%;
-}
+/* Masaüstü */
+.page.left  { left: 0;  width: 50%; }
+.page.right { right: 0; width: 50%; }
+.page.single { left: 0; width: 100%; }
 
-.page.right {
-  right: 0;
-  width: 50%;
-}
-
-.page.single {
-  left: 0;
-  width: 100%;
-}
-
-/* İçerik */
-.page img.bg,
-.page video {
+/* =========================================================
+   SAYFA İÇERİĞİ
+========================================================= */
+.page img.bg {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
-  background: #ffffff;
+  z-index: 1;
+  position: relative;
+}
+
+/* 🔴 VİDEO = OVERLAY (EN KRİTİK KISIM) */
+.page video {
+  position: absolute;
+  inset: 0;               /* top:0 left:0 right:0 bottom:0 */
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+
+  z-index: 5;             /* JPG'nin ÜSTÜNDE */
+  background: transparent;
 }
 
 /* =========================================================
-   ALT KONTROLLER (ORTA – SABİT)
+   PLAY OVERLAY (MASAÜSTÜ GARANTİ)
+========================================================= */
+.video-page {
+  position: relative;
+}
+
+.video-play-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 80px;
+  color: white;
+  background: rgba(0,0,0,0.35);
+  cursor: pointer;
+
+  z-index: 10;
+}
+
+/* =========================================================
+   KONTROLLER
 ========================================================= */
 #controls {
   position: fixed;
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 99999;
+  z-index: 999999;
 
   display: flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
 
   background: rgba(255,255,255,0.96);
   padding: 8px 14px;
@@ -107,32 +127,26 @@ body {
 }
 
 #controls button {
-  border: none;
-  background: #333;
-  color: #fff;
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  font-size: 16px;
+  border: none;
+  background: #333;
+  color: #fff;
   cursor: pointer;
 }
 
 #controls span {
-  font-size: 14px;
   min-width: 70px;
   text-align: center;
+  font-size: 14px;
 }
 
 /* =========================================================
-   📱 MOBİL – TAM EKRAN DİKEY OKUMA
+   📱 MOBİL – TEK SAYFA, OVERLAY KORUNUR
 ========================================================= */
 @media (max-width: 768px) {
 
-  #book-wrapper {
-    align-items: flex-start;
-  }
-
-  /* 🔴 EN KRİTİK DÜZELTME */
   #book {
     width: 100%;
     height: auto;
@@ -145,16 +159,16 @@ body {
     height: auto;
   }
 
-  .page.left,
-  .page.right {
-    width: 100%;
-    position: relative;
-  }
-
-  .page img.bg,
-  .page video {
+  .page img.bg {
     width: 100%;
     height: auto;
-    object-fit: contain;
+  }
+
+  /* 🔴 MOBİLDE DE OVERLAY DEVAM */
+  .page video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 }
