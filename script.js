@@ -1,182 +1,176 @@
-/* =========================================
+/* =========================================================
    GENEL AYARLAR
-========================================= */
-const TOTAL_PAGES = 47;
+========================================================= */
+const TOTAL_PAGES = 47;      // 🔴 47 = arka kapak + video
+const CHUNK_SIZE = 10;       // 10’ar 10 kademeli yükleme
 
-/* Video olan sayfalar */
-const videoPages = {
+/* Video olan sayfalar (KAPAKTA VİDEO YOK) */
+const videoMap = {
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
   26: "videos/v26.mp4",
   41: "videos/v41.mp4",
-  47: "videos/v01.mp4"   // Arka kapak
+  47: "videos/v01.mp4"       // 🔴 KAPANIŞ VİDEOSU
 };
 
-const bookEl = document.getElementById("book");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const indicator = document.getElementById("pageIndicator");
-const hint = document.getElementById("hint");
+/* =========================================================
+   DOM REFERANSLARI
+========================================================= */
+const bookEl    = document.getElementById("book");
+const prevBtn   = document.getElementById("prevBtn");
+const nextBtn   = document.getElementById("nextBtn");
+const pageLabel = document.getElementById("pageLabel");
 
-/* 🔊 Sayfa çevirme sesi */
-const flipSound = new Audio("audio/page-turn.mp3");
-flipSound.volume = 0.35;
+/* =========================================================
+   DURUM
+========================================================= */
+let spreadStart = 1;            // Soldaki sayfa numarası
+let loadedUntil = CHUNK_SIZE;  // Kaçıncı sayfaya kadar yüklendi
+let flipping = false;
 
-let unlocked = false;
-
-/* =========================================
+/* =========================================================
    SAYFA OLUŞTURMA
-========================================= */
-function createHtmlPage(pageNo) {
+========================================================= */
+function createPage(side, pageNo) {
   const page = document.createElement("div");
-  page.className = "page";
-  page.dataset.pageNo = String(pageNo);
+  page.className = `page ${side}`;
+  page.dataset.pageNo = pageNo;
 
-  /* Arka plan JPG */
+  /* JPG arka plan */
   const img = document.createElement("img");
   img.className = "bg";
+  img.src = `pages/${pageNo}.jpg`;
   img.alt = `Sayfa ${pageNo}`;
-  img.src = `pages/${String(pageNo).padStart(2, "0")}.jpg`;
-  img.onerror = () => {
-    img.onerror = null;
-    img.src = `pages/${pageNo}.jpg`;
-  };
+  img.loading = "lazy";
   page.appendChild(img);
 
-  /* Video varsa */
-  if (videoPages[pageNo]) {
-    const v = document.createElement("video");
-    v.className = "vid";
-    v.src = videoPages[pageNo];
-    v.muted = true;           // GitHub Pages autoplay şartı
-    v.playsInline = true;
-    v.loop = true;
-    v.autoplay = true;
-    v.preload = "metadata";
-    v.controls = true;
-    page.appendChild(v);
+  /* Video overlay (sadece videoMap’te varsa) */
+  if (videoMap[pageNo]) {
+    page.classList.add("video");
+
+    const video = document.createElement("video");
+    video.src = videoMap[pageNo];
+    video.muted = true;          // Mobil autoplay için şart
+    video.playsInline = true;
+    video.loop = true;
+    video.preload = "none";      // 🔴 Hız için
+    video.controls = true;
+
+    page.appendChild(video);
   }
 
   return page;
 }
 
-/* =========================================
-   SAYFALARI YÜKLE
-========================================= */
-const pages = [];
-for (let i = 1; i <= TOTAL_PAGES; i++) {
-  const p = createHtmlPage(i);
-  pages.push(p);
-  bookEl.appendChild(p);
+/* =========================================================
+   KADEMELİ YÜKLEME KONTROLÜ
+========================================================= */
+function ensureLoaded(targetPage) {
+  if (targetPage <= loadedUntil) return;
+
+  const nextLimit = Math.min(
+    loadedUntil + CHUNK_SIZE,
+    TOTAL_PAGES
+  );
+
+  loadedUntil = nextLimit;
 }
 
-/* =========================================
-   PAGE FLIP
-========================================= */
-const pageFlip = new St.PageFlip(bookEl, {
-  width: 450,
-  height: 650,
-  size: "fixed",
-  showCover: true,
-  maxShadowOpacity: 0.6,
-  flippingTime: 700,
-  useMouseEvents: true,
-  swipeDistance: 30
-});
-
-pageFlip.loadFromHTML(document.querySelectorAll(".page"));
-
-/* =========================================
-   SAYFA NUMARASI
-========================================= */
-function updateIndicator() {
-  const idx = pageFlip.getCurrentPageIndex();
-  const pageNo = idx + 1;
-
-  if (pageNo === 1) {
-    indicator.textContent = `1 / ${TOTAL_PAGES}`;
-  } else {
-    const left = pageNo % 2 === 0 ? pageNo : pageNo - 1;
-    const right = Math.min(TOTAL_PAGES, left + 1);
-    indicator.textContent = `${left}–${right} / ${TOTAL_PAGES}`;
-  }
-
-  prevBtn.disabled = (pageNo <= 1);
-  nextBtn.disabled = (pageNo >= TOTAL_PAGES);
-}
-
-/* =========================================
-   VİDEO SENKRON
-========================================= */
-function syncVideos() {
-  const idx = pageFlip.getCurrentPageIndex();
-  const visible = new Set([idx, idx + 1]);
-
-  document.querySelectorAll(".page video").forEach(v => {
-    const page = v.closest(".page");
-    const no = Number(page?.dataset.pageNo || "0");
-    const pageIndex = no - 1;
-
-    if (visible.has(pageIndex)) {
-      if (unlocked) v.play().catch(() => {});
-    } else {
-      try { v.pause(); } catch {}
-    }
+/* =========================================================
+   VIDEO KONTROL
+========================================================= */
+function stopAllVideos() {
+  bookEl.querySelectorAll("video").forEach(v => {
+    try { v.pause(); } catch {}
   });
 }
 
-/* =========================================
-   SES
-========================================= */
-function playFlip() {
-  if (!unlocked) return;
-  try {
-    flipSound.currentTime = 0;
-    flipSound.play().catch(() => {});
-  } catch {}
+function playVisibleVideos() {
+  bookEl.querySelectorAll(".page.video").forEach(p => {
+    const v = p.querySelector("video");
+    if (v) v.play().catch(() => {});
+  });
 }
 
-/* =========================================
-   OLAYLAR
-========================================= */
-pageFlip.on("flip", () => {
-  playFlip();
-  updateIndicator();
-  setTimeout(syncVideos, 200);
-});
+/* =========================================================
+   RENDER
+========================================================= */
+function render() {
+  stopAllVideos();
+  bookEl.innerHTML = "";
 
-pageFlip.on("changeState", (e) => {
-  if (e.data === "read") {
-    updateIndicator();
-    syncVideos();
+  const isCover = (spreadStart === 1);
+  bookEl.classList.toggle("cover-mode", isCover);
+
+  /* Gerekli sayfaları yükle */
+  ensureLoaded(spreadStart + 1);
+
+  /* Sol sayfa */
+  if (spreadStart <= loadedUntil) {
+    bookEl.appendChild(createPage("left", spreadStart));
   }
+
+  /* Sağ sayfa (kapakta yok) */
+  const rightNo = spreadStart + 1;
+  if (!isCover && rightNo <= loadedUntil && rightNo <= TOTAL_PAGES) {
+    bookEl.appendChild(createPage("right", rightNo));
+  }
+
+  /* Sayfa etiketi */
+  if (isCover) {
+    pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
+  } else if (spreadStart === TOTAL_PAGES) {
+    pageLabel.textContent = `${TOTAL_PAGES} / ${TOTAL_PAGES}`;
+  } else {
+    pageLabel.textContent = `${spreadStart}-${spreadStart + 1} / ${TOTAL_PAGES}`;
+  }
+
+  prevBtn.disabled = (spreadStart <= 1);
+  nextBtn.disabled = (spreadStart >= TOTAL_PAGES);
+
+  playVisibleVideos();
+}
+
+/* =========================================================
+   SAYFA GEÇİŞLERİ
+========================================================= */
+function nextPage() {
+  if (flipping || spreadStart >= TOTAL_PAGES) return;
+  flipping = true;
+
+  spreadStart = (spreadStart === 1)
+    ? 2
+    : Math.min(spreadStart + 2, TOTAL_PAGES);
+
+  render();
+  flipping = false;
+}
+
+function prevPage() {
+  if (flipping || spreadStart <= 1) return;
+  flipping = true;
+
+  spreadStart = (spreadStart === 2)
+    ? 1
+    : Math.max(spreadStart - 2, 1);
+
+  render();
+  flipping = false;
+}
+
+/* =========================================================
+   OLAYLAR
+========================================================= */
+prevBtn.addEventListener("click", prevPage);
+nextBtn.addEventListener("click", nextPage);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") nextPage();
+  if (e.key === "ArrowLeft") prevPage();
 });
 
-/* =========================================
-   BUTONLAR
-========================================= */
-prevBtn.addEventListener("click", () => pageFlip.flipPrev());
-nextBtn.addEventListener("click", () => pageFlip.flipNext());
-
-/* =========================================
-   AUTOPLAY UNLOCK
-========================================= */
-document.addEventListener("click", () => {
-  if (unlocked) return;
-  unlocked = true;
-  if (hint) hint.style.display = "none";
-
-  flipSound.play().then(() => {
-    flipSound.pause();
-    flipSound.currentTime = 0;
-  }).catch(() => {});
-
-  syncVideos();
-}, { once: true });
-
-/* =========================================
+/* =========================================================
    BAŞLAT
-========================================= */
-updateIndicator();
-syncVideos();
+========================================================= */
+render();
