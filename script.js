@@ -26,18 +26,34 @@ const zoomOutBtn = document.getElementById("zoomOut");
 const zoomLabel  = document.getElementById("zoomLevel");
 
 /* =========================================================
-   ZOOM
+   ZOOM (AUTO-FIT + MANUEL)
 ========================================================= */
 let zoom = 1;
-const ZOOM_MIN = 1;
+const ZOOM_MIN = 0.6;
 const ZOOM_MAX = 3;
 const ZOOM_STEP = 0.2;
+
+/* 🔴 MOBİLDE OTOMATİK SIĞDIR */
+function calculateInitialZoom() {
+  const screenWidth = window.innerWidth;
+  const bookWidth = 900;
+
+  if (screenWidth < bookWidth) {
+    return Math.max(ZOOM_MIN, screenWidth / bookWidth);
+  }
+  return 1;
+}
 
 function applyZoom() {
   bookEl.style.transform = `scale(${zoom})`;
   zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
 }
 
+/* İlk açılış */
+zoom = calculateInitialZoom();
+applyZoom();
+
+/* Manuel zoom */
 zoomInBtn.addEventListener("click", () => {
   zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
   applyZoom();
@@ -48,14 +64,11 @@ zoomOutBtn.addEventListener("click", () => {
   applyZoom();
 });
 
-applyZoom();
-
 /* =========================================================
    SAYFA DURUMU
 ========================================================= */
 let spreadStart = 1;
 let loadedUntil = CHUNK_SIZE;
-let flipping = false;
 
 /* =========================================================
    SAYFA OLUŞTURMA
@@ -112,39 +125,23 @@ function render() {
 
   if (isCover) {
     pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
-  } else if (spreadStart === TOTAL_PAGES) {
-    pageLabel.textContent = `${TOTAL_PAGES} / ${TOTAL_PAGES}`;
   } else {
     pageLabel.textContent = `${spreadStart}-${spreadStart + 1} / ${TOTAL_PAGES}`;
   }
-
-  prevBtn.disabled = (spreadStart <= 1);
-  nextBtn.disabled = (spreadStart >= TOTAL_PAGES);
 }
 
 /* =========================================================
    GEÇİŞ
 ========================================================= */
-function nextPage() {
-  if (flipping || spreadStart >= TOTAL_PAGES) return;
-  flipping = true;
-
-  spreadStart = (spreadStart === 1) ? 2 : Math.min(spreadStart + 2, TOTAL_PAGES);
-  render();
-  flipping = false;
-}
-
-function prevPage() {
-  if (flipping || spreadStart <= 1) return;
-  flipping = true;
-
+prevBtn.addEventListener("click", () => {
   spreadStart = (spreadStart === 2) ? 1 : Math.max(spreadStart - 2, 1);
   render();
-  flipping = false;
-}
+});
 
-prevBtn.addEventListener("click", prevPage);
-nextBtn.addEventListener("click", nextPage);
+nextBtn.addEventListener("click", () => {
+  spreadStart = (spreadStart === 1) ? 2 : Math.min(spreadStart + 2, TOTAL_PAGES);
+  render();
+});
 
 /* =========================================================
    BAŞLAT
