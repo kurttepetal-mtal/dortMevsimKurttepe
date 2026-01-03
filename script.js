@@ -1,32 +1,60 @@
 /* =========================================================
-   GENEL AYARLAR
+   AYARLAR
 ========================================================= */
-const TOTAL_PAGES = 47;      // 🔴 47 = arka kapak + video
-const CHUNK_SIZE = 10;       // 10’ar 10 kademeli yükleme
+const TOTAL_PAGES = 47;
+const CHUNK_SIZE = 10;
 
-/* Video olan sayfalar (KAPAKTA VİDEO YOK) */
 const videoMap = {
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
   24: "videos/v24.mp4",
   26: "videos/v26.mp4",
   41: "videos/v41.mp4",
-  47: "videos/v01.mp4"       // 🔴 KAPANIŞ VİDEOSU
+  47: "videos/v01.mp4"
 };
 
 /* =========================================================
-   DOM REFERANSLARI
+   DOM
 ========================================================= */
 const bookEl    = document.getElementById("book");
 const prevBtn   = document.getElementById("prevBtn");
 const nextBtn   = document.getElementById("nextBtn");
 const pageLabel = document.getElementById("pageLabel");
 
+const zoomInBtn  = document.getElementById("zoomIn");
+const zoomOutBtn = document.getElementById("zoomOut");
+const zoomLabel  = document.getElementById("zoomLevel");
+
 /* =========================================================
-   DURUM
+   ZOOM
 ========================================================= */
-let spreadStart = 1;            // Soldaki sayfa numarası
-let loadedUntil = CHUNK_SIZE;  // Kaçıncı sayfaya kadar yüklendi
+let zoom = 1;
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 3;
+const ZOOM_STEP = 0.2;
+
+function applyZoom() {
+  bookEl.style.transform = `scale(${zoom})`;
+  zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
+}
+
+zoomInBtn.addEventListener("click", () => {
+  zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
+  applyZoom();
+});
+
+zoomOutBtn.addEventListener("click", () => {
+  zoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP);
+  applyZoom();
+});
+
+applyZoom();
+
+/* =========================================================
+   SAYFA DURUMU
+========================================================= */
+let spreadStart = 1;
+let loadedUntil = CHUNK_SIZE;
 let flipping = false;
 
 /* =========================================================
@@ -37,87 +65,51 @@ function createPage(side, pageNo) {
   page.className = `page ${side}`;
   page.dataset.pageNo = pageNo;
 
-  /* JPG arka plan */
   const img = document.createElement("img");
   img.className = "bg";
   img.src = `pages/${pageNo}.jpg`;
-  img.alt = `Sayfa ${pageNo}`;
   img.loading = "lazy";
   page.appendChild(img);
 
-  /* Video overlay (sadece videoMap’te varsa) */
   if (videoMap[pageNo]) {
-    page.classList.add("video");
-
-    const video = document.createElement("video");
-    video.src = videoMap[pageNo];
-    video.muted = true;          // Mobil autoplay için şart
-    video.playsInline = true;
-    video.loop = true;
-    video.preload = "none";      // 🔴 Hız için
-    video.controls = true;
-
-    page.appendChild(video);
+    const v = document.createElement("video");
+    v.src = videoMap[pageNo];
+    v.muted = true;
+    v.playsInline = true;
+    v.loop = true;
+    v.preload = "none";
+    v.controls = true;
+    page.appendChild(v);
   }
 
   return page;
 }
 
 /* =========================================================
-   KADEMELİ YÜKLEME KONTROLÜ
+   KADEMELİ YÜKLEME
 ========================================================= */
-function ensureLoaded(targetPage) {
-  if (targetPage <= loadedUntil) return;
-
-  const nextLimit = Math.min(
-    loadedUntil + CHUNK_SIZE,
-    TOTAL_PAGES
-  );
-
-  loadedUntil = nextLimit;
-}
-
-/* =========================================================
-   VIDEO KONTROL
-========================================================= */
-function stopAllVideos() {
-  bookEl.querySelectorAll("video").forEach(v => {
-    try { v.pause(); } catch {}
-  });
-}
-
-function playVisibleVideos() {
-  bookEl.querySelectorAll(".page.video").forEach(p => {
-    const v = p.querySelector("video");
-    if (v) v.play().catch(() => {});
-  });
+function ensureLoaded(pageNo) {
+  if (pageNo <= loadedUntil) return;
+  loadedUntil = Math.min(loadedUntil + CHUNK_SIZE, TOTAL_PAGES);
 }
 
 /* =========================================================
    RENDER
 ========================================================= */
 function render() {
-  stopAllVideos();
   bookEl.innerHTML = "";
 
   const isCover = (spreadStart === 1);
   bookEl.classList.toggle("cover-mode", isCover);
 
-  /* Gerekli sayfaları yükle */
   ensureLoaded(spreadStart + 1);
 
-  /* Sol sayfa */
-  if (spreadStart <= loadedUntil) {
-    bookEl.appendChild(createPage("left", spreadStart));
+  bookEl.appendChild(createPage("left", spreadStart));
+
+  if (!isCover && spreadStart + 1 <= TOTAL_PAGES) {
+    bookEl.appendChild(createPage("right", spreadStart + 1));
   }
 
-  /* Sağ sayfa (kapakta yok) */
-  const rightNo = spreadStart + 1;
-  if (!isCover && rightNo <= loadedUntil && rightNo <= TOTAL_PAGES) {
-    bookEl.appendChild(createPage("right", rightNo));
-  }
-
-  /* Sayfa etiketi */
   if (isCover) {
     pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
   } else if (spreadStart === TOTAL_PAGES) {
@@ -128,21 +120,16 @@ function render() {
 
   prevBtn.disabled = (spreadStart <= 1);
   nextBtn.disabled = (spreadStart >= TOTAL_PAGES);
-
-  playVisibleVideos();
 }
 
 /* =========================================================
-   SAYFA GEÇİŞLERİ
+   GEÇİŞ
 ========================================================= */
 function nextPage() {
   if (flipping || spreadStart >= TOTAL_PAGES) return;
   flipping = true;
 
-  spreadStart = (spreadStart === 1)
-    ? 2
-    : Math.min(spreadStart + 2, TOTAL_PAGES);
-
+  spreadStart = (spreadStart === 1) ? 2 : Math.min(spreadStart + 2, TOTAL_PAGES);
   render();
   flipping = false;
 }
@@ -151,24 +138,13 @@ function prevPage() {
   if (flipping || spreadStart <= 1) return;
   flipping = true;
 
-  spreadStart = (spreadStart === 2)
-    ? 1
-    : Math.max(spreadStart - 2, 1);
-
+  spreadStart = (spreadStart === 2) ? 1 : Math.max(spreadStart - 2, 1);
   render();
   flipping = false;
 }
 
-/* =========================================================
-   OLAYLAR
-========================================================= */
 prevBtn.addEventListener("click", prevPage);
 nextBtn.addEventListener("click", nextPage);
-
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") nextPage();
-  if (e.key === "ArrowLeft") prevPage();
-});
 
 /* =========================================================
    BAŞLAT
