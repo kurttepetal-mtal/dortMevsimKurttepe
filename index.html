@@ -1,39 +1,31 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <title>ddddddddddddddf</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 🔴 ZOOM İÇİN KRİTİK -->
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 minimum-scale=1.0,
-                 maximum-scale=5.0,
-                 user-scalable=yes">
-
-  <title>Dört Mevsim Kurttepe</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
-  <div id="app" class="stage">
+<div id="app">
+
+  <div id="book-wrapper">
     <div id="book"></div>
   </div>
 
-  <!-- ALT KONTROLLER -->
-  <div class="controls">
+  <!-- 🔴 KONTROLLER (PENCEREYE SABİT) -->
+  <div id="controls">
     <button id="prevBtn">◀</button>
-    <span id="pageLabel">1 / 47</span>
+    <span id="pageLabel">1</span>
     <button id="nextBtn">▶</button>
   </div>
 
-  <!-- 🔍 ZOOM BUTONLARI -->
-  <div class="zoom-controls">
-    <button id="zoomOut">−</button>
-    <span id="zoomLevel">100%</span>
-    <button id="zoomIn">+</button>
-  </div>
+</div>
 
-  <script src="script.js"></script>
+<audio id="turnSound" src="audio/page-turn.mp3" preload="auto"></audio>
+
+<script src="script.js?v=30"></script>
 </body>
 </html>
