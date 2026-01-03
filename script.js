@@ -68,12 +68,12 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (DÜZELTİLMİŞ)
+   MOBİL CROSS-SLIDE (KESİN DÜZELTME)
 ========================================================= */
 function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const oldPage = bookEl.querySelector(".page");
 
-  // İlk açılış
+  // İlk render
   if (!oldPage) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
@@ -85,9 +85,9 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
   const wrapper = document.createElement("div");
   wrapper.className = "mobile-slide-wrapper";
 
-  /* 🔴 KRİTİK DÜZELTME:
-     Wrapper’a eski sayfanın yüksekliğini kilitle */
-  wrapper.style.height = oldPage.offsetHeight + "px";
+  // 🔴 KRİTİK SATIR (SORUNU ÇÖZEN)
+  wrapper.style.height =
+    oldPage.offsetHeight || bookEl.offsetHeight || "auto";
 
   oldPage.classList.add("mobile-slide-old");
   newPageEl.classList.add("mobile-slide-new");
@@ -102,7 +102,7 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
     bookEl.innerHTML = "";
     bookEl.appendChild(newPageEl);
     isAnimating = false;
-  }, duration + 40);
+  }, duration);
 }
 
 /* =========================================================
@@ -111,7 +111,6 @@ function renderMobileWithCrossSlide(bookEl, newPageEl, duration = 320) {
 function render(withAnimation = false) {
   const book = document.getElementById("book");
   const pageLabel = document.getElementById("pageLabel");
-
   if (!book) return;
 
   /* ================= MOBİL ================= */
@@ -129,7 +128,7 @@ function render(withAnimation = false) {
     return;
   }
 
-  /* ========== MASAÜSTÜ (KİLİTLİ) ========== */
+  /* ================= MASAÜSTÜ (KİLİTLİ) ================= */
   book.innerHTML = "";
 
   let left = null, right = null;
