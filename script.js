@@ -27,7 +27,7 @@ const turnSound = document.getElementById("turnSound");
 /* =========================================================
    DURUMLAR
 ========================================================= */
-let currentPage = 1;   // HER ZAMAN AKTİF SAYFA
+let currentPage = 1;   // kullanıcının bulunduğu sayfa
 let zoom = 1;
 
 /* =========================================================
@@ -44,7 +44,7 @@ function makePage(position, pageNo) {
   const page = document.createElement("div");
   page.className = `page ${position}`;
 
-  if (!pageNo || pageNo < 1 || pageNo > TOTAL_PAGES) {
+  if (pageNo == null || pageNo < 1 || pageNo > TOTAL_PAGES) {
     page.style.background = "transparent";
     return page;
   }
@@ -81,7 +81,7 @@ function makePage(position, pageNo) {
 }
 
 /* =========================================================
-   RENDER (TEK KAYNAK)
+   RENDER
 ========================================================= */
 function render() {
   bookEl.innerHTML = "";
@@ -89,7 +89,6 @@ function render() {
   /* ================= MOBİL ================= */
   if (isMobile()) {
     bookEl.appendChild(makePage("single", currentPage));
-
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= TOTAL_PAGES;
@@ -105,23 +104,33 @@ function render() {
   if (currentPage === 1) {
     leftPageNo = null;
     rightPageNo = 1;
-  } 
+  }
   else {
-    if (currentPage % 2 === 0) {
-      // çift → sol
-      leftPageNo = currentPage;
-      rightPageNo = currentPage + 1;
-    } else {
-      // tek → sağ
-      leftPageNo = currentPage - 1;
-      rightPageNo = currentPage;
+    // Önce video var mı bak
+    if (videoMap[currentPage]) {
+      if (currentPage % 2 === 0) {
+        leftPageNo = currentPage;
+        rightPageNo = currentPage + 1;
+      } else {
+        leftPageNo = currentPage - 1;
+        rightPageNo = currentPage;
+      }
+    }
+    // Video yoksa normal spread
+    else {
+      if (currentPage % 2 === 0) {
+        leftPageNo = currentPage;
+        rightPageNo = currentPage + 1;
+      } else {
+        leftPageNo = currentPage - 1;
+        rightPageNo = currentPage;
+      }
     }
   }
 
   bookEl.appendChild(makePage("left", leftPageNo));
   bookEl.appendChild(makePage("right", rightPageNo));
 
-  // Etiket
   if (leftPageNo && rightPageNo) {
     pageLabel.textContent = `${leftPageNo}-${rightPageNo} / ${TOTAL_PAGES}`;
   } else {
