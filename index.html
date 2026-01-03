@@ -1,61 +1,31 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Dört Mevsim Kurttepe</title>
+  <meta charset="UTF-8" />
+  <title>Dergi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Mobil zoom ve erişilebilirlik -->
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 maximum-scale=5.0,
-                 user-scalable=yes">
-
-  <!-- Stil -->
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
-  <!-- =====================================================
-       UYGULAMA / KİTAP ALANI
-  ====================================================== -->
-  <div id="app">
-    <div id="book-wrapper">
-      <div id="book"></div>
-    </div>
+<div id="app">
+
+  <div id="book-wrapper">
+    <div id="book"></div>
   </div>
 
-  <!-- =====================================================
-       ALT KONTROLLER
-       (TRANSFORM ALANININ DIŞINDA – KRİTİK)
-  ====================================================== -->
+  <!-- 🔴 KONTROLLER (PENCEREYE SABİT) -->
   <div id="controls">
-    <button id="prevBtn" aria-label="Önceki Sayfa">◀</button>
-
-    <span id="pageLabel">1 / 47</span>
-
-    <button id="nextBtn" aria-label="Sonraki Sayfa">▶</button>
-
-    <button id="zoomOut" aria-label="Küçült">−</button>
-
-    <span id="zoomLevel">100%</span>
-
-    <button id="zoomIn" aria-label="Büyüt">+</button>
+    <button id="prevBtn">◀</button>
+    <span id="pageLabel">1</span>
+    <button id="nextBtn">▶</button>
   </div>
 
-  <!-- =====================================================
-       SAYFA ÇEVİRME SESİ
-  ====================================================== -->
-  <audio
-    id="turnSound"
-    src="audio/page-turn.mp3"
-    preload="auto">
-  </audio>
+</div>
 
-  <!-- =====================================================
-       SCRIPT
-  ====================================================== -->
-  <script src="script.js?v=12"></script>
+<audio id="turnSound" src="audio/page-turn.mp3" preload="auto"></audio>
 
+<script src="script.js?v=30"></script>
 </body>
 </html>
