@@ -164,3 +164,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("resize", render);
+function renderMobileWithCrossSlide(bookEl, newPageEl) {
+  const oldPage = bookEl.querySelector(".page");
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "mobile-slide-wrapper";
+
+  if (oldPage) {
+    oldPage.classList.add("mobile-slide-old");
+    wrapper.appendChild(oldPage);
+  }
+
+  newPageEl.classList.add("mobile-slide-new");
+  wrapper.appendChild(newPageEl);
+
+  bookEl.innerHTML = "";
+  bookEl.appendChild(wrapper);
+
+  // Animasyon bitince eskiyi kaldır
+  setTimeout(() => {
+    bookEl.innerHTML = "";
+    bookEl.appendChild(newPageEl);
+  }, 350);
+}
+
