@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================================
-   UYGULAMA KAPSAYICI
+   KİTAP KAPSAYICI
 ========================================================= */
 #app {
   min-height: 100vh;
@@ -27,9 +27,6 @@ body {
   flex-direction: column;
 }
 
-/* =========================================================
-   KİTAP ALANI
-========================================================= */
 #book-wrapper {
   flex: 1;
   display: flex;
@@ -78,9 +75,6 @@ body {
   width: 100%;
 }
 
-/* =========================================================
-   SAYFA İÇERİĞİ – KIRPMA YOK
-========================================================= */
 .page img.bg,
 .page video {
   width: 100%;
@@ -91,17 +85,15 @@ body {
 }
 
 /* =========================================================
-   ALT KONTROLLER – MASAÜSTÜ (FIXED)
+   KONTROLLER – ARTIK TRANSFORM'DAN BAĞIMSIZ
 ========================================================= */
 #controls {
   position: fixed;
-  bottom: 16px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
 
-  width: fit-content;
-  z-index: 9999;
+  z-index: 999999;
 
   display: flex;
   align-items: center;
@@ -113,7 +105,6 @@ body {
   box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 
-/* Butonlar */
 #controls button {
   border: none;
   background: #333;
@@ -130,7 +121,6 @@ body {
   cursor: default;
 }
 
-/* Etiketler */
 #pageLabel,
 #zoomLevel {
   min-width: 70px;
@@ -140,10 +130,9 @@ body {
 }
 
 /* =========================================================
-   MOBİL – KONTROLLER STICKY (FIXED YOK!)
+   MOBİL
 ========================================================= */
 @media (max-width: 768px) {
-
   #book {
     width: 100%;
     height: auto;
@@ -152,13 +141,5 @@ body {
 
   .page {
     width: 100%;
-  }
-
-  /* 🔴 EN KRİTİK KISIM */
-  #controls {
-    position: sticky;
-    bottom: 0;
-
-    margin: 8px auto 12px auto;
   }
 }
