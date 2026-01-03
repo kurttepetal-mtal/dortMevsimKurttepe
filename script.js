@@ -13,10 +13,9 @@ const videoMap = {
 };
 
 /* =========================================================
-   DURUMLAR
+   DURUM
 ========================================================= */
 let currentPage = 1;
-let isAnimating = false;
 
 /* =========================================================
    CİHAZ
@@ -47,7 +46,7 @@ function makePage(type, pageNo) {
 
     const video = document.createElement("video");
     video.src = videoMap[pageNo];
-    video.muted = true;
+    video.muted = true;          // mobil autoplay güvenliği
     video.loop = true;
     video.playsInline = true;
     video.controls = true;
@@ -68,81 +67,28 @@ function makePage(type, pageNo) {
 }
 
 /* =========================================================
-   MOBİL CROSS-SLIDE (STABİL)
-========================================================= */
-function renderMobileWithCrossSlide(bookEl, newPageEl) {
-  const oldPage = bookEl.querySelector(".page");
-
-  // İlk açılış
-  if (!oldPage) {
-    bookEl.innerHTML = "";
-    bookEl.appendChild(newPageEl);
-    return;
-  }
-
-  isAnimating = true;
-
-  const oldClone = oldPage.cloneNode(true);
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "mobile-slide-wrapper";
-
-  /* 🔴 KRİTİK:
-     offsetHeight KULLANMIYORUZ
-     Sabit, güvenli bir alan */
-  wrapper.style.minHeight = "60vh";
-
-  oldClone.classList.add("mobile-slide-old");
-  newPageEl.classList.add("mobile-slide-new");
-
-  wrapper.appendChild(oldClone);
-  wrapper.appendChild(newPageEl);
-
-  bookEl.innerHTML = "";
-  bookEl.appendChild(wrapper);
-
-  setTimeout(() => {
-    bookEl.innerHTML = "";
-    bookEl.appendChild(newPageEl);
-    isAnimating = false;
-  }, 350);
-}
-
-/* =========================================================
    RENDER
 ========================================================= */
-function render(withAnimation = false) {
+function render() {
   const book = document.getElementById("book");
   const pageLabel = document.getElementById("pageLabel");
   if (!book) return;
 
+  book.innerHTML = "";
+
   /* ================= MOBİL ================= */
   if (isMobile()) {
-    const hasVideo = !!videoMap[currentPage];
-    const newPage = makePage("single", currentPage);
-
-    // Video sayfalar → animasyonsuz
-    if (hasVideo || !withAnimation) {
-      book.innerHTML = "";
-      book.appendChild(newPage);
-      isAnimating = false;
-    }
-    // Sadece JPG → cross-slide
-    else if (!isAnimating) {
-      renderMobileWithCrossSlide(book, newPage);
-    }
-
+    book.appendChild(makePage("single", currentPage));
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     return;
   }
 
-  /* ================= MASAÜSTÜ (KİLİTLİ) ================= */
-  book.innerHTML = "";
-
-  let left = null, right = null;
+  /* ================= MASAÜSTÜ ================= */
+  let left = null;
+  let right = null;
 
   if (currentPage === 1) {
-    right = 1;
+    right = 1; // kapak sağda
   } else if (currentPage % 2 === 0) {
     left = currentPage;
     right = currentPage + 1;
@@ -163,31 +109,21 @@ function render(withAnimation = false) {
    SAYFA GEÇİŞ
 ========================================================= */
 function nextPage() {
-  if (isAnimating) return;
-
   if (isMobile()) {
-    if (currentPage < TOTAL_PAGES) {
-      currentPage++;
-      render(true);
-    }
+    if (currentPage < TOTAL_PAGES) currentPage++;
   } else {
     currentPage = currentPage === 1 ? 2 : currentPage + 2;
-    render(false);
   }
+  render();
 }
 
 function prevPage() {
-  if (isAnimating) return;
-
   if (isMobile()) {
-    if (currentPage > 1) {
-      currentPage--;
-      render(true);
-    }
+    if (currentPage > 1) currentPage--;
   } else {
     currentPage = currentPage === 2 ? 1 : currentPage - 2;
-    render(false);
   }
+  render();
 }
 
 /* =========================================================
@@ -196,7 +132,7 @@ function prevPage() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("prevBtn").onclick = prevPage;
   document.getElementById("nextBtn").onclick = nextPage;
-  render(false);
+  render();
 });
 
-window.addEventListener("resize", () => render(false));
+window.addEventListener("resize", render);
