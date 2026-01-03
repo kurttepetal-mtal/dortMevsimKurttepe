@@ -1,31 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>mmmmmmmmmmmmm/title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="style.css?v=30">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Dört Mevsim Kurttepe: Elmasın Işıltısı</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+  <div id="app">
+    <div id="book-wrapper">
+      <div id="book" aria-label="Okul dergisi flipbook"></div>
+    </div>
 
-<div id="app">
+    <!-- Kontroller (ALT ORTA – KİLİTLİ) -->
+    <div id="controls" role="group" aria-label="Sayfa kontrolleri">
+      <button id="prevBtn" type="button" aria-label="Önceki">‹</button>
 
-  <div id="book-wrapper">
-    <div id="book"></div>
+      <span id="pageLabel" aria-live="polite">1 / 47</span>
+
+      <button id="nextBtn" type="button" aria-label="Sonraki">›</button>
+
+      <div class="sep" aria-hidden="true"></div>
+
+      <button id="zoomOut" type="button" aria-label="Uzaklaştır">−</button>
+      <span id="zoomLevel" aria-live="polite">100%</span>
+      <button id="zoomIn" type="button" aria-label="Yakınlaştır">+</button>
+    </div>
   </div>
 
-  <!-- 🔴 KONTROLLER (PENCEREYE SABİT) -->
-  <div id="controls">
-    <button id="prevBtn">◀</button>
-    <span id="pageLabel">1</span>
-    <button id="nextBtn">▶</button>
-  </div>
-
-</div>
-
-<audio id="turnSound" src="audio/page-turn.mp3" preload="auto"></audio>
-
-<script src="script.js?v=30"></script>
+  <script src="script.js"></script>
 </body>
 </html>
