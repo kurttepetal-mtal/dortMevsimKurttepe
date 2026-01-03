@@ -4,7 +4,6 @@
 const TOTAL_PAGES = 47;
 const CHUNK_SIZE = 10;
 
-/* Video olan sayfalar */
 const videoMap = {
   17: "videos/v17.mp4",
   22: "videos/v22.mp4",
@@ -42,8 +41,8 @@ const ZOOM_MAX = 3;
 const ZOOM_STEP = 0.2;
 
 function calculateInitialZoom() {
-  const screenWidth = window.innerWidth;
-  return screenWidth < 900 ? Math.max(ZOOM_MIN, screenWidth / 900) : 1;
+  const w = window.innerWidth;
+  return w < 900 ? Math.max(ZOOM_MIN, w / 900) : 1;
 }
 
 function applyZoom() {
@@ -54,26 +53,19 @@ function applyZoom() {
 zoom = calculateInitialZoom();
 applyZoom();
 
-zoomInBtn.onclick = () => {
-  zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
-  applyZoom();
-};
-
-zoomOutBtn.onclick = () => {
-  zoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP);
-  applyZoom();
-};
+zoomInBtn.onclick  = () => { zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP); applyZoom(); };
+zoomOutBtn.onclick = () => { zoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP); applyZoom(); };
 
 /* =========================================================
    DURUM
 ========================================================= */
-let currentPage = 1;     // sol sayfa ya da tek sayfa
+let currentPage = 1;
 let loadedUntil = CHUNK_SIZE;
 
 /* =========================================================
    SAYFA OLUŞTURMA
 ========================================================= */
-function createPage(pageNo, side = "single") {
+function createPage(pageNo, side) {
   const page = document.createElement("div");
   page.className = `page ${side}`;
   page.dataset.pageNo = pageNo;
@@ -90,7 +82,6 @@ function createPage(pageNo, side = "single") {
     v.muted = true;
     v.playsInline = true;
     v.loop = true;
-    v.preload = "none";
     v.controls = true;
     page.appendChild(v);
   }
@@ -109,7 +100,7 @@ function ensureLoaded(pageNo) {
 /* =========================================================
    RENDER
 ========================================================= */
-function render(direction = "none") {
+function render() {
   bookEl.innerHTML = "";
 
   /* =======================
@@ -118,8 +109,7 @@ function render(direction = "none") {
   if (isMobile()) {
     ensureLoaded(currentPage);
 
-    const page = createPage(currentPage, "single");
-    bookEl.appendChild(page);
+    bookEl.appendChild(createPage(currentPage, "single"));
 
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     prevBtn.disabled = currentPage <= 1;
@@ -128,10 +118,10 @@ function render(direction = "none") {
   }
 
   /* =======================
-     MASAÜSTÜ: KAPAK + ÇİFT
+     MASAÜSTÜ
   ======================= */
 
-  // Kapak
+  // KAPAK (SAĞDA)
   if (currentPage === 1) {
     bookEl.appendChild(createPage(1, "right"));
     pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
@@ -140,16 +130,14 @@ function render(direction = "none") {
     return;
   }
 
-  // Çift sayfa
+  // ÇİFT SAYFA
   ensureLoaded(currentPage + 1);
 
-  const left  = createPage(currentPage, "left");
-  const right = currentPage + 1 <= TOTAL_PAGES
-    ? createPage(currentPage + 1, "right")
-    : null;
+  bookEl.appendChild(createPage(currentPage, "left"));
 
-  bookEl.appendChild(left);
-  if (right) bookEl.appendChild(right);
+  if (currentPage + 1 <= TOTAL_PAGES) {
+    bookEl.appendChild(createPage(currentPage + 1, "right"));
+  }
 
   pageLabel.textContent = `${currentPage}-${currentPage + 1} / ${TOTAL_PAGES}`;
   prevBtn.disabled = currentPage <= 1;
@@ -166,7 +154,7 @@ prevBtn.onclick = () => {
     if (currentPage === 2) currentPage = 1;
     else if (currentPage > 2) currentPage -= 2;
   }
-  render("prev");
+  render();
 };
 
 nextBtn.onclick = () => {
@@ -176,11 +164,11 @@ nextBtn.onclick = () => {
     if (currentPage === 1) currentPage = 2;
     else if (currentPage + 1 < TOTAL_PAGES) currentPage += 2;
   }
-  render("next");
+  render();
 };
 
 /* =========================================================
-   EKRAN DEĞİŞİNCE (ROTATE / RESIZE)
+   EKRAN DEĞİŞİNCE
 ========================================================= */
 window.addEventListener("resize", () => {
   zoom = calculateInitialZoom();
