@@ -25,34 +25,15 @@ const turnSound  = document.getElementById("turnSound");
 /* =========================================================
    DURUMLAR
 ========================================================= */
-let currentPage = 1;   // TEK GERÇEK SAYFA GÖSTERGESİ
+let currentPage = 1;
 let zoom = 1;
-let mediaUnlocked = false;
 
 /* =========================================================
-   CİHAZ TESPİTİ (KİLİTLİ)
+   CİHAZ
 ========================================================= */
 function isMobile() {
   return window.innerWidth <= 768;
 }
-
-/* =========================================================
-   MEDYA KİLİDİ
-========================================================= */
-function unlockMedia() {
-  if (mediaUnlocked) return;
-  mediaUnlocked = true;
-
-  if (turnSound) {
-    turnSound.volume = 0.4;
-    turnSound.play().then(() => {
-      turnSound.pause();
-      turnSound.currentTime = 0;
-    }).catch(() => {});
-  }
-}
-document.addEventListener("click", unlockMedia, { once: true });
-document.addEventListener("touchstart", unlockMedia, { once: true });
 
 /* =========================================================
    SAYFA OLUŞTURMA
@@ -71,62 +52,54 @@ function makePage(type, pageNo) {
   img.src = `pages/${pageNo}.jpg`;
   page.appendChild(img);
 
+  /* ---------- VIDEO VARSA ---------- */
   if (videoMap[pageNo]) {
+    page.classList.add("video-page");
+
     const video = document.createElement("video");
     video.src = videoMap[pageNo];
     video.muted = true;
     video.loop = true;
     video.playsInline = true;
-    video.preload = "auto";
-    video.controls = true;
+    video.preload = "metadata";
+    video.controls = false;
     page.appendChild(video);
+
+    /* 🔴 PLAY OVERLAY (GARANTİ) */
+    const playBtn = document.createElement("div");
+    playBtn.className = "video-play-overlay";
+    playBtn.innerHTML = "▶";
+
+    playBtn.onclick = () => {
+      playBtn.style.display = "none";
+      video.muted = false; // masaüstünde ses serbest
+      video.play();
+    };
+
+    page.appendChild(playBtn);
   }
 
   return page;
 }
 
 /* =========================================================
-   VİDEO KONTROL
-========================================================= */
-function stopVideos() {
-  bookEl.querySelectorAll("video").forEach(v => {
-    v.pause();
-    v.currentTime = 0;
-  });
-}
-
-function playVideos() {
-  if (!mediaUnlocked) return;
-  bookEl.querySelectorAll("video").forEach(v => {
-    v.play().catch(() => {});
-  });
-}
-
-/* =========================================================
-   RENDER (ANA – KİLİTLİ)
+   RENDER
 ========================================================= */
 function render() {
-  stopVideos();
   bookEl.innerHTML = "";
 
-  /* ================= 📱 MOBİL ================= */
+  /* ---------------- MOBİL ---------------- */
   if (isMobile()) {
-
-    // 🔴 SADECE TEK SAYFA – BAŞKA HİÇBİR ŞEY YOK
     bookEl.appendChild(makePage("single", currentPage));
-
     pageLabel.textContent = `${currentPage} / ${TOTAL_PAGES}`;
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= TOTAL_PAGES;
 
-  /* ================= 🖥️ MASAÜSTÜ ================= */
+  /* ---------------- MASAÜSTÜ ---------------- */
   } else {
-
     if (currentPage === 1) {
-      // Kapak: boş sol + kapak sağ
       bookEl.appendChild(makePage("left", null));
       bookEl.appendChild(makePage("right", 1));
-
       pageLabel.textContent = `1 / ${TOTAL_PAGES}`;
       prevBtn.disabled = true;
       nextBtn.disabled = false;
@@ -136,7 +109,6 @@ function render() {
       const rightNo = currentPage + 1;
 
       bookEl.appendChild(makePage("left", leftNo));
-
       if (rightNo <= TOTAL_PAGES) {
         bookEl.appendChild(makePage("right", rightNo));
       }
@@ -146,15 +118,13 @@ function render() {
       nextBtn.disabled = rightNo >= TOTAL_PAGES;
     }
   }
-
-  setTimeout(playVideos, 100);
 }
 
 /* =========================================================
-   SAYFA GEÇİŞLERİ
+   SAYFA GEÇİŞ
 ========================================================= */
 function playTurnSound() {
-  if (mediaUnlocked && turnSound) {
+  if (turnSound) {
     turnSound.currentTime = 0;
     turnSound.play().catch(() => {});
   }
@@ -164,7 +134,7 @@ function nextPage() {
   playTurnSound();
 
   if (isMobile()) {
-    if (currentPage < TOTAL_PAGES) currentPage += 1;
+    if (currentPage < TOTAL_PAGES) currentPage++;
   } else {
     if (currentPage === 1) currentPage = 2;
     else if (currentPage + 2 <= TOTAL_PAGES) currentPage += 2;
@@ -177,7 +147,7 @@ function prevPage() {
   playTurnSound();
 
   if (isMobile()) {
-    if (currentPage > 1) currentPage -= 1;
+    if (currentPage > 1) currentPage--;
   } else {
     if (currentPage === 2) currentPage = 1;
     else if (currentPage > 2) currentPage -= 2;
@@ -186,11 +156,11 @@ function prevPage() {
   render();
 }
 
-prevBtn.addEventListener("click", prevPage);
-nextBtn.addEventListener("click", nextPage);
+prevBtn.onclick = prevPage;
+nextBtn.onclick = nextPage;
 
 /* =========================================================
-   ZOOM (MASAÜSTÜ)
+   ZOOM
 ========================================================= */
 document.getElementById("zoomIn").onclick = () => {
   zoom = Math.min(2, zoom + 0.1);
