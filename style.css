@@ -167,3 +167,54 @@ html, body {
     }
   }
 }
+/* =========================
+   MOBİL CROSS-SLIDE EFEKT
+   (MEVCUT YERLEŞİME DOKUNMAZ)
+========================= */
+@media (max-width: 768px) {
+  .mobile-slide-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .mobile-slide-old,
+  .mobile-slide-new {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    will-change: transform, opacity;
+  }
+
+  .mobile-slide-old {
+    animation: slideOldOut 0.32s ease forwards;
+  }
+
+  .mobile-slide-new {
+    animation: slideNewIn 0.32s ease forwards;
+  }
+
+  @keyframes slideOldOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-35%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideNewIn {
+    from {
+      transform: translateX(35%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+}
+
